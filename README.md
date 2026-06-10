@@ -11,10 +11,12 @@ This is your project home for the FURP programme. **Fork this template**, rename
 
 1. **Fork / use this template** to create your own repository.
 2. **Rename your repo** following the naming convention:
+
    ```
    FURP-2025/YourName-ProjectTag
    # e.g. furp-2025/Jason-ROSBootcamp
    ```
+   
 3. **Give us access:** either make the repo **public**, or **share it** with the research group accounts (ask your project lead for the usernames to add as collaborators).
 4. **Fill in this README** — replace the placeholders in the *Project Info* section below.
 5. **Start your weekly log** in [`docs/00_weekly.md`](docs/00_weekly.md).
@@ -25,16 +27,16 @@ This is your project home for the FURP programme. **Fork this template**, rename
 
 | Field | Your entry |
 |---|---|
-| Student name(s) | _e.g. Jason Zhang_ |
-| Project title | _..._ |
+| Student name(s) | _Jiabao Cao_ |
+| Project title | End-to-End Navigation for an AMR with RL |
 | Project tag | _e.g. ROSBootcamp_ |
 | Track | Research |
-| Supervising faculty | _..._ |
-| Project lead | _..._ |
-| Team or individual | _..._ |
+| Supervising faculty | Tianxiang Cui |
+| Project lead | Jiabao Cao |
+| Team or individual | Jiabao Cao, Shengqin Jiang, Wenjing Chen |
 | Cited paper being replicated | _title + link/DOI_ |
 
-**One-line summary:** _What is your project about? (1–2 sentences)_
+**One-line summary:** Using reinforce learning to achieve end to end navigation.
 
 ---
 
