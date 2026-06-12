@@ -29,7 +29,7 @@ This is your project home for the FURP programme. **Fork this template**, rename
 |---|---|
 | Student name(s) | _Jiabao Cao_ |
 | Project title | End-to-End Navigation for an AMR with RL |
-| Project tag | _e.g. ROSBootcamp_ |
+| Project tag | _End-to-End Navigation_ |
 | Track | Research |
 | Supervising faculty | Tianxiang Cui |
 | Project lead | Jiabao Cao |
