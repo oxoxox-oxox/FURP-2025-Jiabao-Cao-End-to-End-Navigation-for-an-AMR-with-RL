@@ -30,19 +30,25 @@
 
 <!-- =================  YOUR ENTRIES BELOW  ================= -->
 
-### Week 1 — YYYY-MM-DD
+### Week 1 — 2026-06-10
 
-**Attended this week's meeting:** Yes / No
+**Attended this week's meeting:** Yes
 
 **Progress this week**
+
 - Set up repository from the FURP template.
-- _..._
+- Read the paper of NeuPAN
+- Try my hand on habitat lab
 
 **Challenges & blockers**
-- _..._
+
+- The methametical formuler in NeuPAN paper is too hard to understand
+- Limited space for my Ubuntu system.
 
 **Next steps**
-- _..._
+
+- Try to learn more methametical formular in paper.
+- Buy a SSD to install a new Ubuntu 22.04 to use.
 
 **Hours spent (optional):**
 
