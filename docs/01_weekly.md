@@ -4,19 +4,19 @@
 
 **Progress this week**
 
-- succesfully install Ubuntu 22.04 system on SSD and install drive for the nvidia.
+- 1. succesfully install Ubuntu 22.04 system on SSD and install drive for the nvidia.
 
-- install ROS2 environment
+- 2. install ROS2 environment
 
-- Run the smoke test for NeuPAN
+- 3. Run the smoke test for NeuPAN
 
 ![example](./img/pf_diff_ani.gif)
 
 And know the basic structure of the repo pf NeuPAN
 
-- Choose Habitat and install both sim and lab
+- 4. Choose Habitat and install both sim and lab
 
-- Successful run the smoke test of Habitat
+- 5. Successful run the smoke test of Habitat
 
 ![smoke_habitat](./img/smoke_test.png)
 
@@ -117,6 +117,23 @@ if __name__ == "__main__":
     example()
 ```
 
+- 6. reproducing the first experiment in NeuPAN, and get the result.
+
+- 7. Build the ros2 pkg for neupan and use it to start gazebo simulator (image below are for rviz)
+
+![ros2_pkg in rviz](./img/neupan_rviz_ros2.png)
+
+
+
 **Challenges & blockers**
 
+- confuse about using habitat or not
+
+- Not sure which reinforce learning algorithm is suitable for navigation
+
+
 **Next steps**
+
+- ask teacher for some guidance on how to further finish our research
+
+- Build gazebo in detail to totally reproduce the result of NeuPAN
