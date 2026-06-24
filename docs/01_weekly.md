@@ -4,7 +4,7 @@
 
 **Progress this week**
 
-- 1. succesfully install Ubuntu 22.04 system on SSD and install drive for the nvidia.
+- 1. Successfully installed Ubuntu 22.04 on SSD and installed NVIDIA drivers.
 
 - 2. install ROS2 environment
 
@@ -12,15 +12,15 @@
 
 ![example](./img/pf_diff_ani.gif)
 
-And know the basic structure of the repo pf NeuPAN
+And know the basic structure of the repo of NeuPAN
 
 - 4. Choose Habitat and install both sim and lab
 
-- 5. Successful run the smoke test of Habitat
+- 5. Successfully ran the smoke test of Habitat
 
 ![smoke_habitat](./img/smoke_test.png)
 
-The source code I run is listed below:
+The source code I ran is listed below:
 
 ```python
 import habitat
@@ -127,13 +127,15 @@ if __name__ == "__main__":
 
 **Challenges & blockers**
 
-- confuse about using habitat or not
+- Confused about whether to use Habitat or not
 
-- Not sure which reinforce learning algorithm is suitable for navigation
+- Not sure which reinforcement learning algorithm is suitable for navigation
 
 
 **Next steps**
 
-- ask teacher for some guidance on how to further finish our research
+- ask teacher for some guidance on how to continue our research
 
 - Build gazebo in detail to totally reproduce the result of NeuPAN
+
+- Try to train RL algorithm for navigation on ir-sim first.
