@@ -13,7 +13,7 @@ class IrSimNavEnv(gym.Env):
     动作: [线速度v, 角速度w] (连续)
     """
 
-    def __init__(self, yaml_file='./nav_world.yaml', render_mode=None):
+    def __init__(self, yaml_file='./env/nav_world.yaml', render_mode=None):
         super().__init__()
         self.yaml_file = yaml_file
         self.render_mode = render_mode
@@ -58,7 +58,7 @@ class IrSimNavEnv(gym.Env):
 
         # 执行动作：ir-sim 接受 [v, w] 速度指令
         v, w = float(action[0]), float(action[1])
-        self.env.step(vel=[[v], [w]])  # ir-sim 的速度输入格式
+        self.env.step(vel=np.array([[v], [w]]))  # ir-sim 的速度输入格式
 
         obs = self._get_observation()
         reward, done, info = self._compute_reward()
@@ -71,24 +71,27 @@ class IrSimNavEnv(gym.Env):
     def _get_observation(self):
         robot = self.env.robot_list[0]
 
-        # 1. 获取激光雷达数据并归一化
-        lidar_data = robot.sensor_list[0].get_scan()  # 36个距离值
-        lidar_norm = np.clip(lidar_data / self.lidar_range, 0, 1)
+        # ✅ 正确的 lidar2d 数据获取方式
+        # get_scan() 返回一个 dict，包含 'range' 键
+        lidar_data = self.env.get_lidar_scan(id=robot.id)
+        # lidar_data 是 dict: {'range': array, 'angle': array, 'points': array}
+        ranges = np.array(lidar_data['range']).flatten()
+        lidar_norm = np.clip(ranges / self.lidar_range,
+                             0, 1).astype(np.float32)
 
-        # 2. 计算目标的相对位置
-        robot_pos = robot.state[:2]   # [x, y]
-        goal_pos = np.array(robot.goal[:2])
+        # 目标相对位置
+        robot_pos = robot.state[:2].flatten()
+        goal_pos = np.array(robot.goal[:2]).flatten()
         diff = goal_pos - robot_pos
-
         dist_to_goal = np.linalg.norm(diff)
-        angle_to_goal = np.arctan2(diff[1], diff[0]) - robot.state[2]
-        # 归一化：距离除以地图对角线长度，角度除以π
+        angle_to_goal = np.arctan2(diff[1], diff[0]) - float(robot.state[2])
+
         dist_norm = np.clip(dist_to_goal / 14.0, 0, 1)
-        angle_norm = (angle_to_goal % (2*np.pi)) / (2*np.pi)
+        angle_norm = (angle_to_goal % (2 * np.pi)) / (2 * np.pi)
 
         obs = np.concatenate([
-            lidar_norm.astype(np.float32),
-            [dist_norm, angle_norm]
+            lidar_norm,
+            np.array([dist_norm, angle_norm], dtype=np.float32)
         ]).astype(np.float32)
         return obs
 
