@@ -1,5 +1,5 @@
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3 import SAC
+from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.env_util import make_vec_env
 import gymnasium as gym
@@ -18,7 +18,7 @@ class IrSimNavEnv(gym.Env):
         - render_mode=None  : 无渲染, 后台运行 (用于训练, 速度最快)
     """
 
-    def __init__(self, yaml_file='./env/nav_world.yaml', render_mode=None,
+    def __init__(self, yaml_file='./env.yaml', render_mode=None,
                  display=None, disable_all_plot=None, seed=None):
         super().__init__()
         self.yaml_file = yaml_file
@@ -34,7 +34,16 @@ class IrSimNavEnv(gym.Env):
         self._display = display
         self._disable_all_plot = disable_all_plot
         self._irsim_seed = seed
-        self.env = None
+
+        # 在 __init__ 中创建 irsim 环境（只创建一次），
+        # 避免在 reset() 中反复 end() + make() 导致 X11 连接泄漏
+        self.env = irsim.make(
+            self.yaml_file,
+            disable_all_plot=self._disable_all_plot,
+            log_level='WARNING',
+            seed=self._irsim_seed,
+            display=False
+        )
 
         # ===== 动作空间 =====
         # 线速度 [0, 1.0] m/s，角速度 [-1.5, 1.5] rad/s
@@ -61,18 +70,12 @@ class IrSimNavEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
 
-        # 关闭旧环境，重建新环境（每个episode随机化）
-        if self.env is not None:
-            self.env.end()
-
-        # 创建 irsim 环境：训练时 display=False 跳过渲染，大幅加速
-        self.env = irsim.make(
-            self.yaml_file,
-            disable_all_plot=self._disable_all_plot,
-            log_level='WARNING',       # 减少日志输出
-            seed=self._irsim_seed,
-            display=False
-        )
+        # 使用 reload() 而非 end()+make()：
+        # reload() 重新解析 YAML、重新随机化障碍物位置，但复用已有的
+        # matplotlib figure 和 pynput 连接，不会造成 X11 连接泄漏
+        if seed is not None:
+            np.random.seed(seed)
+        self.env.reload()
         self.current_step = 0
 
         obs = self._get_observation()
@@ -96,10 +99,8 @@ class IrSimNavEnv(gym.Env):
     def _get_observation(self):
         robot = self.env.robot_list[0]
 
-        # ✅ 正确的 lidar2d 数据获取方式
-        # get_scan() 返回一个 dict，包含 'range' 键
-        lidar_data = self.env.get_lidar_scan(id=robot.id)
-        # lidar_data 是 dict: {'range': array, 'angle': array, 'points': array}
+        # 直接从 robot 对象获取 lidar 数据，避免 get_lidar_scan(id=...) 的索引 bug
+        lidar_data = robot.get_lidar_scan()
 
         ranges = np.array(lidar_data['ranges']).flatten()
         lidar_norm = np.clip(ranges / self.lidar_range,
@@ -146,7 +147,10 @@ class IrSimNavEnv(gym.Env):
 
         # ③ 正常步骤
         else:
-            reward = -0.01
+            progress = self.current_step / self.max_steps          # 0 → 1
+            base_penalty = -0.01
+            extra_penalty = -0.05 * progress                      # 从 0 到 -0.05
+            reward = base_penalty + extra_penalty                 # 范围: -0.01 → -0.06
             info['result'] = 'running'
 
         return reward, done, info
@@ -181,25 +185,31 @@ eval_callback = EvalCallback(
     n_eval_episodes=10,
 )
 
-# 创建 SAC 智能体（适合连续动作空间导航任务）
-model = SAC(
+# 创建 PPO 智能体（on-policy，适合连续动作空间导航任务）
+model = PPO(
     policy='MlpPolicy',
     env=train_env,
     learning_rate=3e-4,
-    buffer_size=100_000,   # Replay Buffer 大小
-    batch_size=256,
+    n_steps=2048,            # 每次 rollout 收集的步数
+    batch_size=64,           # 小批量大小
+    n_epochs=10,             # 每次更新时优化的 epoch 数
+    gamma=0.99,              # 折扣因子
+    gae_lambda=0.95,         # GAE 参数
+    clip_range=0.2,          # PPO clip 范围
+    ent_coef=0.05,           # 熵系数（鼓励探索）
     verbose=1,
-    tensorboard_log='./tb_logs/'
+    tensorboard_log='./tb_logs/',
+    device='cuda'
 )
 
 # 开始训练
 model.learn(total_timesteps=500_000, callback=eval_callback)
-model.save('nav_sac_final')
+model.save('nav_ppo_final')
 
 # ====================== evaluation part========================
 
 # 加载训练好的模型并可视化
-model = SAC.load('models/best_model')
+model = PPO.load('models/best_model')
 env = IrSimNavEnv(render_mode='human')
 
 obs, _ = env.reset()
