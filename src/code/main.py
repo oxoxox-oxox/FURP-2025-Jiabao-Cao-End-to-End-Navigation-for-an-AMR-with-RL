@@ -1,7 +1,4 @@
-from stable_baselines3.common.monitor import Monitor
-from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import EvalCallback
-from stable_baselines3.common.env_util import make_vec_env
+from rl_ppo import PPO
 import gymnasium as gym
 import numpy as np
 import irsim
@@ -166,50 +163,40 @@ class IrSimNavEnv(gym.Env):
 # ===================== main part ========================
 
 
-# 创建训练环境（可并行多个加速训练）
-# render_mode=None → 自动开启 display=False, disable_all_plot=True，后台无渲染
-train_env = make_vec_env(
-    IrSimNavEnv,
+# ===================== Training ========================
+
+# Create PPO agent with custom PyTorch implementation
+model = PPO(
+    env=IrSimNavEnv,
+    env_kwargs={'render_mode': None},
     n_envs=4,
-    env_kwargs={'render_mode': None},  # 无渲染，加速训练
+    learning_rate=3e-4,
+    n_steps=2048,            # rollout steps per collection
+    batch_size=64,           # mini-batch size
+    n_epochs=10,             # optimization epochs per rollout
+    gamma=0.99,              # discount factor
+    gae_lambda=0.95,         # GAE lambda
+    clip_range=0.2,          # PPO clip range
+    ent_coef=0.05,           # entropy coefficient (encourage exploration)
+    device='cuda',
+    tensorboard_log='./tb_logs/',
 )
 
-
-eval_env = Monitor(IrSimNavEnv(render_mode=None))  # 评估时也不需要渲染
-
-# 定义回调：每5000步评估一次，自动保存最好的模型
-eval_callback = EvalCallback(
-    eval_env,
-    best_model_save_path='./models/',
+# Train with periodic evaluation
+model.learn(
+    total_timesteps=500_000,
+    eval_env=IrSimNavEnv(render_mode=None),
     eval_freq=5000,
     n_eval_episodes=10,
+    best_model_save_path='./models/',
 )
 
-# 创建 PPO 智能体（on-policy，适合连续动作空间导航任务）
-model = PPO(
-    policy='MlpPolicy',
-    env=train_env,
-    learning_rate=3e-4,
-    n_steps=2048,            # 每次 rollout 收集的步数
-    batch_size=64,           # 小批量大小
-    n_epochs=10,             # 每次更新时优化的 epoch 数
-    gamma=0.99,              # 折扣因子
-    gae_lambda=0.95,         # GAE 参数
-    clip_range=0.2,          # PPO clip 范围
-    ent_coef=0.05,           # 熵系数（鼓励探索）
-    verbose=1,
-    tensorboard_log='./tb_logs/',
-    device='cuda'
-)
+model.save('nav_ppo_final.pt')
 
-# 开始训练
-model.learn(total_timesteps=500_000, callback=eval_callback)
-model.save('nav_ppo_final')
+# ====================== Evaluation =========================
 
-# ====================== evaluation part========================
-
-# 加载训练好的模型并可视化
-model = PPO.load('models/best_model')
+# Load trained model and visualize
+model = PPO.load('models/best_model.pt')
 env = IrSimNavEnv(render_mode='human')
 
 obs, _ = env.reset()
