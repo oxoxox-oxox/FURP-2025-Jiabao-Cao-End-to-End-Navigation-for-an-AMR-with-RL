@@ -39,14 +39,16 @@ model = PPO(
     env=IrSimNavEnv,
     env_kwargs={'render_mode': None},
     n_envs=1,                  # irsim 不支持单进程多实例，多个 make() 会堆叠到同一世界
-    learning_rate=1e-5,
+    learning_rate=3e-5,        # actor LR
+    critic_lr=1e-5,            # critic LR (lower = more stable value fit)
     n_steps=2048,            # rollout steps per collection
     batch_size=64,           # mini-batch size
     n_epochs=10,             # optimization epochs per rollout
     gamma=0.99,              # discount factor
     gae_lambda=0.95,         # GAE lambda
-    clip_range=0.2,          # PPO clip range
+    clip_range=0.1,          # PPO clip range (reduced: prevents policy collapse)
     ent_coef=0.05,           # entropy coefficient (encourage exploration)
+    target_kl=0.3,           # early stop KL threshold (prevents policy explosion)
     device='cuda',
     tensorboard_log=tb_dir,
 )

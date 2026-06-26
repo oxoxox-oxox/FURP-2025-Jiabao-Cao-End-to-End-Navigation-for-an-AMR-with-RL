@@ -43,8 +43,13 @@ class ActorCritic(nn.Module):
         # Learnable log standard deviation (state-independent)
         self.log_std = nn.Parameter(torch.ones(act_dim) * log_std_init)
 
-        # Critic head -> state value
-        self.critic = nn.Linear(in_dim, 1)
+        # Critic head -> state value (deeper: extra 64-dim hidden layer for
+        # better value prediction, reducing value loss and improving explained_variance)
+        self.critic = nn.Sequential(
+            nn.Linear(in_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
+        )
 
         # Orthogonal initialization
         self._init_weights()
@@ -60,9 +65,11 @@ class ActorCritic(nn.Module):
         nn.init.orthogonal_(self.actor_mean.weight, gain=0.01)
         nn.init.constant_(self.actor_mean.bias, 0.0)
 
-        # Critic: gain = 1.0
-        nn.init.orthogonal_(self.critic.weight, gain=1.0)
-        nn.init.constant_(self.critic.bias, 0.0)
+        # Critic (now nn.Sequential): orthogonal init with gain=1.0
+        for m in self.critic:
+            if isinstance(m, nn.Linear):
+                nn.init.orthogonal_(m.weight, gain=1.0)
+                nn.init.constant_(m.bias, 0.0)
 
     def forward(self, obs):
         """

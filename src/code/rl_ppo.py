@@ -39,7 +39,8 @@ class PPO:
         env,                        # Gymnasium Env class or instance
         env_kwargs=None,            # kwargs passed to env() if callable
         n_envs=1,                   # number of parallel environments
-        learning_rate=3e-4,
+        learning_rate=3e-4,         # actor LR
+        critic_lr=None,             # critic LR (defaults to learning_rate if None)
         n_steps=2048,
         batch_size=64,
         n_epochs=10,
@@ -57,6 +58,7 @@ class PPO:
         # Hyperparameters
         self.n_envs = n_envs
         self.lr = learning_rate
+        self.critic_lr = critic_lr if critic_lr is not None else learning_rate
         self.n_steps = n_steps
         self.batch_size = batch_size
         self.n_epochs = n_epochs
@@ -93,8 +95,21 @@ class PPO:
 
         # Actor-Critic network
         self.policy = ActorCritic(self.obs_dim, self.act_dim).to(self.device)
-        self.optimizer = optim.Adam(self.policy.parameters(),
-                                    lr=learning_rate, eps=1e-5)
+
+        # Separate optimizer parameter groups: critic LR > actor LR
+        # because the critic needs to fit faster to keep up with policy changes.
+        actor_params = []
+        critic_params = []
+        for name, param in self.policy.named_parameters():
+            if 'critic' in name:
+                critic_params.append(param)
+            else:
+                actor_params.append(param)
+
+        self.optimizer = optim.Adam([
+            {'params': actor_params,  'lr': self.lr},
+            {'params': critic_params, 'lr': self.critic_lr},
+        ], eps=1e-5)
 
         # Rollout buffer
         self.buffer = RolloutBuffer(
@@ -497,6 +512,7 @@ class PPO:
             'hyperparams': {
                 'n_envs': self.n_envs,
                 'lr': self.lr,
+                'critic_lr': self.critic_lr,
                 'n_steps': self.n_steps,
                 'batch_size': self.batch_size,
                 'n_epochs': self.n_epochs,
@@ -559,6 +575,7 @@ class PPO:
         # Restore hyperparameters
         hp = checkpoint['hyperparams']
         model.lr = hp['lr']
+        model.critic_lr = hp.get('critic_lr', hp['lr'])  # backward-compat
         model.n_steps = hp['n_steps']
         model.batch_size = hp['batch_size']
         model.n_epochs = hp['n_epochs']
@@ -578,9 +595,18 @@ class PPO:
         model.policy.load_state_dict(checkpoint['policy_state_dict'])
         model.policy.eval()  # inference mode by default
 
-        # Rebuild optimizer (for potential continued training)
-        model.optimizer = optim.Adam(model.policy.parameters(),
-                                     lr=model.lr, eps=1e-5)
+        # Rebuild optimizer with separate actor/critic LRs
+        actor_params = []
+        critic_params = []
+        for name, param in model.policy.named_parameters():
+            if 'critic' in name:
+                critic_params.append(param)
+            else:
+                actor_params.append(param)
+        model.optimizer = optim.Adam([
+            {'params': actor_params,  'lr': model.lr},
+            {'params': critic_params, 'lr': model.critic_lr},
+        ], eps=1e-5)
         if 'optimizer_state_dict' in checkpoint:
             model.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 

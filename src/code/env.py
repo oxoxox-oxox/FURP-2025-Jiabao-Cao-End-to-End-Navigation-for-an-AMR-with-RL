@@ -156,24 +156,26 @@ class IrSimNavEnv(gym.Env):
             return reward, done, info
 
         # ③ 正常步骤: dense reward 引导 agent 靠近目标
+        # (returns 归一化已在 rl_buffer 中处理, 所以 reward scale 可以设大些
+        #  以提供清晰的学习信号, 不会导致 value loss 爆炸)
         # ---- 距离进度奖励 (核心) ----
         # >0 = 正在靠近目标, <0 = 正在远离目标
         if self._prev_dist is not None:
             progress = self._prev_dist - dist
-            progress_reward = progress * 10.0   # 靠近 1m ≈ +10 reward
+            progress_reward = progress * 5.0    # 靠近 1m ≈ +5 reward
         else:
             progress_reward = 0.0
         self._prev_dist = dist
 
         # ---- 靠近目标奖励 ----
-        proximity_reward = (1.0 - dist / 14.0) * 0.5   # 近则奖励大
+        proximity_reward = (1.0 - dist / 14.0) * 0.3   # 近则奖励大
 
         # ---- 存活奖励 (抵消 step penalty, 鼓励探索) ----
-        alive_bonus = 0.05
+        alive_bonus = 0.03
 
         # ---- 时间惩罚 (轻微, 促使尽快到达) ----
         progress_ratio = self.current_step / self.max_steps
-        time_penalty = -0.01 - 0.05 * progress_ratio   # -0.01 → -0.06
+        time_penalty = -0.01 - 0.03 * progress_ratio   # -0.01 → -0.04
 
         reward = progress_reward + proximity_reward + alive_bonus + time_penalty
         info['result'] = 'running'
