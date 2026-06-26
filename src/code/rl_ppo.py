@@ -306,11 +306,12 @@ class PPO:
                 if avg_kl > self.target_kl:
                     break
 
+        # Compute explained variance (MUST be before buffer.clear(),
+        # otherwise returns/values arrays are empty and var() produces NaN)
+        explained_var = self._explained_variance()
+
         # Clear buffer for next rollout
         self.buffer.clear()
-
-        # Compute explained variance
-        explained_var = self._explained_variance()
 
         n = max(n_batches, 1)
         metrics = {
@@ -326,9 +327,16 @@ class PPO:
         """EV = 1 - Var[returns - values] / Var[returns]. Measures value function fit."""
         returns = self.buffer.returns[:self.buffer.ptr].flatten()
         values = self.buffer.values[:self.buffer.ptr].flatten()
-        if returns.var() < 1e-10:
+
+        # Need at least 2 samples for sample variance (ddof=1).
+        # With 0 or 1 samples, variance is undefined → return NaN.
+        if len(returns) <= 1:
             return float('nan')
-        return 1.0 - np.var(returns - values) / np.var(returns)
+
+        var_returns = returns.var()
+        if var_returns < 1e-10:
+            return float('nan')
+        return 1.0 - np.var(returns - values) / var_returns
 
     # ---- Evaluation ----
 

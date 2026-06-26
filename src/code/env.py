@@ -1,4 +1,10 @@
-from rl_ppo import PPO
+"""
+IrSimNavEnv: gymnasium-compatible wrapper for ir-sim.
+
+观测: [36条激光值(归一化), 目标相对距离, 目标相对角度]  → 共38维
+动作: [线速度v, 角速度w] (连续)
+"""
+
 import gymnasium as gym
 import numpy as np
 import irsim
@@ -6,9 +12,7 @@ import irsim
 
 class IrSimNavEnv(gym.Env):
     """
-    将 ir-sim 包装成 Gymnasium 标准接口
-    观测: [36条激光值(归一化), 目标相对距离, 目标相对角度]  → 共38维
-    动作: [线速度v, 角速度w] (连续)
+    将 ir-sim 包装成 Gymnasium 标准接口。
 
     通过 render_mode 控制渲染:
         - render_mode='human': 显示可视化窗口 (用于评估/演示)
@@ -22,7 +26,6 @@ class IrSimNavEnv(gym.Env):
         self.render_mode = render_mode
 
         # 根据 render_mode 自动决定是否开启渲染
-        # human 模式 → 显示画面；None → 后台无渲染，加速训练
         if display is None:
             display = (render_mode == 'human')
         if disable_all_plot is None:
@@ -39,7 +42,7 @@ class IrSimNavEnv(gym.Env):
             disable_all_plot=self._disable_all_plot,
             log_level='WARNING',
             seed=self._irsim_seed,
-            display=False
+            display=self._display
         )
 
         # ===== 动作空间 =====
@@ -63,6 +66,7 @@ class IrSimNavEnv(gym.Env):
         self.lidar_range = 5.0
         self.goal_threshold = 0.3  # 到达目标的距离阈值
         self.current_step = 0
+        self._prev_dist = None     # 用于 progress reward 的上一帧距离
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -74,6 +78,9 @@ class IrSimNavEnv(gym.Env):
             np.random.seed(seed)
         self.env.reload()
         self.current_step = 0
+
+        # Reset distance tracking for progress reward
+        self._prev_dist = None
 
         obs = self._get_observation()
         return obs, {}
@@ -90,6 +97,10 @@ class IrSimNavEnv(gym.Env):
 
         # 超时截断 (truncated ≠ done by collision/success)
         truncated = self.current_step >= self.max_steps
+
+        # Record episode length when episode ends (for logging in PPO buffer)
+        if done or truncated:
+            info['episode_length'] = self.current_step
 
         return obs, reward, done, truncated, info
 
@@ -135,21 +146,37 @@ class IrSimNavEnv(gym.Env):
             reward = 200.0
             done = True
             info['result'] = 'success'
+            return reward, done, info
 
-        # ② 再用 ir-sim 的 done() 判断碰撞（到达目标已经处理过，剩下的 done=True 就是碰撞）
-        elif self.env.done():
+        # ② 再用 ir-sim 的 done() 判断碰撞
+        if self.env.done():
             reward = -100.0
             done = True
             info['result'] = 'collision'
+            return reward, done, info
 
-        # ③ 正常步骤
+        # ③ 正常步骤: dense reward 引导 agent 靠近目标
+        # ---- 距离进度奖励 (核心) ----
+        # >0 = 正在靠近目标, <0 = 正在远离目标
+        if self._prev_dist is not None:
+            progress = self._prev_dist - dist
+            progress_reward = progress * 10.0   # 靠近 1m ≈ +10 reward
         else:
-            progress = self.current_step / self.max_steps          # 0 → 1
-            base_penalty = -0.01
-            extra_penalty = -0.05 * progress                      # 从 0 到 -0.05
-            reward = base_penalty + extra_penalty                 # 范围: -0.01 → -0.06
-            info['result'] = 'running'
+            progress_reward = 0.0
+        self._prev_dist = dist
 
+        # ---- 靠近目标奖励 ----
+        proximity_reward = (1.0 - dist / 14.0) * 0.5   # 近则奖励大
+
+        # ---- 存活奖励 (抵消 step penalty, 鼓励探索) ----
+        alive_bonus = 0.05
+
+        # ---- 时间惩罚 (轻微, 促使尽快到达) ----
+        progress_ratio = self.current_step / self.max_steps
+        time_penalty = -0.01 - 0.05 * progress_ratio   # -0.01 → -0.06
+
+        reward = progress_reward + proximity_reward + alive_bonus + time_penalty
+        info['result'] = 'running'
         return reward, done, info
 
     def render(self):
@@ -159,52 +186,3 @@ class IrSimNavEnv(gym.Env):
     def close(self):
         if self.env is not None:
             self.env.end()
-
-# ===================== main part ========================
-
-
-# ===================== Training ========================
-
-# Create PPO agent with custom PyTorch implementation
-model = PPO(
-    env=IrSimNavEnv,
-    env_kwargs={'render_mode': None},
-    n_envs=4,
-    learning_rate=3e-4,
-    n_steps=2048,            # rollout steps per collection
-    batch_size=64,           # mini-batch size
-    n_epochs=10,             # optimization epochs per rollout
-    gamma=0.99,              # discount factor
-    gae_lambda=0.95,         # GAE lambda
-    clip_range=0.2,          # PPO clip range
-    ent_coef=0.05,           # entropy coefficient (encourage exploration)
-    device='cuda',
-    tensorboard_log='./tb_logs/',
-)
-
-# Train with periodic evaluation
-model.learn(
-    total_timesteps=500_000,
-    eval_env=IrSimNavEnv(render_mode=None),
-    eval_freq=5000,
-    n_eval_episodes=10,
-    best_model_save_path='./models/',
-)
-
-model.save('nav_ppo_final.pt')
-
-# ====================== Evaluation =========================
-
-# Load trained model and visualize
-model = PPO.load('models/best_model.pt')
-env = IrSimNavEnv(render_mode='human')
-
-obs, _ = env.reset()
-for _ in range(500):
-    action, _ = model.predict(obs, deterministic=True)
-    obs, reward, done, truncated, info = env.step(action)
-    env.render()
-    if done or truncated:
-        print(f"Result: {info.get('result', 'timeout')}")
-        obs, _ = env.reset()
-env.close()

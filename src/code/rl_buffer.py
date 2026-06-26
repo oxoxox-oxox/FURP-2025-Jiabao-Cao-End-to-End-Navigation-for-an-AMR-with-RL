@@ -20,7 +20,7 @@ class RolloutBuffer:
     - Mini-batch sampling with advantage normalization
     """
 
-    def __init__(self, n_steps, n_envs, obs_dim, act_dim, gamma, gae_lambda, device='cpu'):
+    def __init__(self, n_steps, n_envs, obs_dim, act_dim, gamma, gae_lambda, device='cuda'):
         self.n_steps = n_steps
         self.n_envs = n_envs
         self.obs_dim = obs_dim
@@ -129,9 +129,12 @@ class RolloutBuffer:
         advantages = self.advantages[:self.ptr].reshape(total)
         returns = self.returns[:self.ptr].reshape(total)
 
-        # Normalize advantages
+        # Normalize advantages (guard against NaN with single-sample or ddof=1 edge case)
         adv_mean = advantages.mean()
-        adv_std = advantages.std() + 1e-8
+        if len(advantages) > 1:
+            adv_std = advantages.std() + 1e-8
+        else:
+            adv_std = 1.0  # single sample: skip normalization, no variance to scale
         advantages = (advantages - adv_mean) / adv_std
 
         # Shuffle
