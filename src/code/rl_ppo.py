@@ -127,6 +127,7 @@ class PPO:
         self._current_obs = None
         self._total_steps = 0
         self._episode_buffer = defaultdict(list)  # per-env episode stats
+        self._episode_rewards = [0.0] * self.n_envs  # accumulated reward per env
 
     # ---- Environment management ----
 
@@ -186,13 +187,17 @@ class PPO:
             truncateds[i] = float(truncated)
             infos.append(info)
 
+            # Accumulate episode reward
+            self._episode_rewards[i] += reward
+
             if done or truncated:
-                # Track episode stats
+                # Track episode stats (total accumulated reward)
                 self._episode_buffer[i].append({
-                    'reward': reward,
+                    'reward': self._episode_rewards[i],
                     'result': info.get('result', 'unknown'),
                     'length': info.get('episode_length', 0),
                 })
+                self._episode_rewards[i] = 0.0
 
                 # For truncated episodes: compute bootstrap value BEFORE reset
                 if truncated and not done:
@@ -270,8 +275,12 @@ class PPO:
         total_entropy = 0.0
         total_approx_kl = 0.0
         n_batches = 0
+        epochs_completed = 0
 
         for epoch in range(self.n_epochs):
+            epoch_kl = 0.0
+            epoch_batches = 0
+
             for batch in self.buffer.get_batches(self.batch_size):
                 obs_b, act_b, old_logp_b, adv_b, ret_b = batch
 
@@ -309,16 +318,21 @@ class PPO:
                 self.optimizer.step()
 
                 # Accumulate metrics
+                batch_kl = (old_logp_b - new_logp).mean().item()
                 total_policy_loss += policy_loss.item()
                 total_value_loss += value_loss.item()
                 total_entropy += entropy_loss.item()
-                total_approx_kl += (old_logp_b - new_logp).mean().item()
+                total_approx_kl += batch_kl           # raw value for logging
+                epoch_kl += abs(batch_kl)              # abs for early stopping (prevent cancellation)
                 n_batches += 1
+                epoch_batches += 1
 
-            # Optional early stopping by KL divergence
-            if self.target_kl is not None:
-                avg_kl = total_approx_kl / max(n_batches, 1)
-                if avg_kl > self.target_kl:
+            epochs_completed = epoch + 1
+
+            # Early stopping: per-epoch mean of |KL|.
+            if self.target_kl is not None and epoch_batches > 0:
+                avg_epoch_kl = epoch_kl / epoch_batches
+                if avg_epoch_kl > self.target_kl:
                     break
 
         # Compute explained variance (MUST be before buffer.clear(),
@@ -335,6 +349,7 @@ class PPO:
             'entropy': total_entropy / n,
             'approx_kl': total_approx_kl / n,
             'explained_variance': explained_var,
+            'epochs': epochs_completed,
         }
         return metrics
 
@@ -435,10 +450,21 @@ class PPO:
 
             # Logging
             fps = (self.n_steps * self.n_envs) / max(rollout_time, 0.001)
+
+            # Collect episode rewards from training envs
+            train_ep_rewards = []
+            for i in range(self.n_envs):
+                while self._episode_buffer[i]:
+                    ep_data = self._episode_buffer[i].pop(0)
+                    train_ep_rewards.append(ep_data['reward'])
+
             if iteration % 5 == 0 or iteration == 1:
+                avg_ep_rew = np.mean(train_ep_rewards) if train_ep_rewards else float('nan')
                 print(f"[PPO] iter={iteration:4d} | "
                       f"steps={timesteps_so_far:8d} | "
                       f"fps={fps:6.0f} | "
+                      f"rew={avg_ep_rew:7.2f} | "
+                      f"ep={train_info['epochs']} | "
                       f"p_loss={train_info['policy_loss']:7.4f} | "
                       f"v_loss={train_info['value_loss']:7.4f} | "
                       f"ent={train_info['entropy']:6.4f} | "

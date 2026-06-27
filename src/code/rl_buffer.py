@@ -129,23 +129,25 @@ class RolloutBuffer:
         advantages = self.advantages[:self.ptr].reshape(total)
         returns = self.returns[:self.ptr].reshape(total)
 
-        # Normalize advantages
+        # Normalize advantages (global mean/std across all rollout data)
         adv_mean = advantages.mean()
         if len(advantages) > 1:
             adv_std = advantages.std() + 1e-8
         else:
             adv_std = 1.0
         advantages = (advantages - adv_mean) / adv_std
+        # Safety clamp: prevent extreme outliers when std is tiny
+        # (e.g., all rewards nearly identical → normalization amplifies noise)
+        advantages = np.clip(advantages, -5.0, 5.0)
 
-        # Normalize returns (CRITICAL: prevents value loss from dominating gradients.
-        # Without this, raw returns in the hundreds cause MSE loss of 10⁵~10⁶,
-        # swamping the policy loss and causing KL explosion.)
+        # Normalize returns to prevent value loss from dominating gradients.
         ret_mean = returns.mean()
         if len(returns) > 1:
             ret_std = returns.std() + 1e-8
         else:
             ret_std = 1.0
         returns = (returns - ret_mean) / ret_std
+        returns = np.clip(returns, -5.0, 5.0)
 
         # Shuffle
         indices = np.random.permutation(total)

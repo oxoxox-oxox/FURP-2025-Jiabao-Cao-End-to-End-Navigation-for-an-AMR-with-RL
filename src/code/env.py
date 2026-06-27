@@ -54,10 +54,13 @@ class IrSimNavEnv(gym.Env):
         )
 
         # ===== 观测空间 =====
-        # 36条激光(归一化到[0,1]) + 目标距离(归一化) + 目标角度(归一化)
+        # 每帧: 36条激光([0,1]) + 目标距离([0,1]) + 目标角度([0,1]) = 38维
+        # 堆叠连续2帧 (当前帧 + 前一帧), 共76维, 提供时序信息
+        self.num_stack = 2
+        self._single_obs_dim = 38
         self.observation_space = gym.spaces.Box(
             low=0.0, high=1.0,
-            shape=(38,),
+            shape=(self._single_obs_dim * self.num_stack,),
             dtype=np.float32
         )
 
@@ -67,6 +70,7 @@ class IrSimNavEnv(gym.Env):
         self.goal_threshold = 0.3  # 到达目标的距离阈值
         self.current_step = 0
         self._prev_dist = None     # 用于 progress reward 的上一帧距离
+        self._prev_obs = None      # 用于帧堆叠的上一帧观测
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -82,7 +86,10 @@ class IrSimNavEnv(gym.Env):
         # Reset distance tracking for progress reward
         self._prev_dist = None
 
-        obs = self._get_observation()
+        # 帧堆叠: 第一帧用全零作为"前一帧"(表示时间边界)
+        single_obs = self._get_observation()
+        self._prev_obs = single_obs.copy()
+        obs = np.concatenate([np.zeros_like(single_obs), single_obs])
         return obs, {}
 
     def step(self, action):
@@ -92,8 +99,12 @@ class IrSimNavEnv(gym.Env):
         v, w = float(action[0]), float(action[1])
         self.env.step(np.array([[v], [w]]))
 
-        obs = self._get_observation()
+        single_obs = self._get_observation()
         reward, done, info = self._compute_reward()
+
+        # 帧堆叠: [prev_frame (38), current_frame (38)] → 76维
+        obs = np.concatenate([self._prev_obs, single_obs])
+        self._prev_obs = single_obs.copy()
 
         # 超时截断 (truncated ≠ done by collision/success)
         truncated = self.current_step >= self.max_steps
@@ -150,7 +161,7 @@ class IrSimNavEnv(gym.Env):
 
         # ② 再用 ir-sim 的 done() 判断碰撞
         if self.env.done():
-            reward = -100.0
+            reward = -30.0
             done = True
             info['result'] = 'collision'
             return reward, done, info
@@ -162,22 +173,29 @@ class IrSimNavEnv(gym.Env):
         # >0 = 正在靠近目标, <0 = 正在远离目标
         if self._prev_dist is not None:
             progress = self._prev_dist - dist
-            progress_reward = progress * 5.0    # 靠近 1m ≈ +5 reward
+            progress_reward = progress * 10.0   # 靠近 1m ≈ +10 reward, 单步~+1
         else:
             progress_reward = 0.0
         self._prev_dist = dist
 
-        # ---- 靠近目标奖励 ----
-        proximity_reward = (1.0 - dist / 14.0) * 0.3   # 近则奖励大
+        # ---- 靠近目标奖励 (仅在 14m 范围内生效, 避免远距离负惩罚) ----
+        proximity_reward = max(0.0, 1.0 - dist / 14.0) * 0.3
 
         # ---- 存活奖励 (抵消 step penalty, 鼓励探索) ----
         alive_bonus = 0.03
+
+        # ---- 激光空旷奖励 (鼓励朝向开阔方向, 间接帮助避障) ----
+        lidar_data = robot.get_lidar_scan()
+        ranges = np.array(lidar_data['ranges']).flatten()
+        clearance = np.clip(ranges / self.lidar_range, 0, 1).mean()
+        clearance_bonus = clearance * 0.05   # max 0.05 when all clear
 
         # ---- 时间惩罚 (轻微, 促使尽快到达) ----
         progress_ratio = self.current_step / self.max_steps
         time_penalty = -0.01 - 0.03 * progress_ratio   # -0.01 → -0.04
 
-        reward = progress_reward + proximity_reward + alive_bonus + time_penalty
+        reward = (progress_reward + proximity_reward + alive_bonus
+                  + clearance_bonus + time_penalty)
         info['result'] = 'running'
         return reward, done, info
 
