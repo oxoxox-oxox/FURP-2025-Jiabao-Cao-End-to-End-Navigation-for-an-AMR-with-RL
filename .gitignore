@@ -34,3 +34,9 @@ data/
 .env
 *.key
 secrets.*
+
+CHANGES.md
+
+models/
+
+tb_logs/

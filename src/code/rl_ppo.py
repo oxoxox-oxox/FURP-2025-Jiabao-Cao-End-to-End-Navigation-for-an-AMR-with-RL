@@ -471,6 +471,18 @@ class PPO:
                       f"kl={train_info['approx_kl']:6.4f} | "
                       f"ev={train_info['explained_variance']:5.2f}")
 
+            # Save checkpoint every 25 iterations
+            if best_model_save_path and iteration % 25 == 0:
+                ckpt_path = os.path.join(best_model_save_path,
+                                        f'checkpoint_iter{iteration}.pt')
+                self.save(ckpt_path)
+                avg_r = np.mean(train_ep_rewards) if train_ep_rewards else 0
+                # Track best (by training reward) and save separately
+                if avg_r > best_mean_reward:
+                    best_mean_reward = avg_r
+                    best_path = os.path.join(best_model_save_path, 'best_model.pt')
+                    self.save(best_path)
+
             if self.writer is not None:
                 self.writer.add_scalar('train/policy_loss',
                                        train_info['policy_loss'], timesteps_so_far)

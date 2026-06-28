@@ -54,10 +54,11 @@ class IrSimNavEnv(gym.Env):
         )
 
         # ===== 观测空间 =====
-        # 每帧: 36条激光([0,1]) + 目标距离([0,1]) + 目标角度([0,1]) = 38维
-        # 堆叠连续2帧 (当前帧 + 前一帧), 共76维, 提供时序信息
+        # 每帧: 36条激光([0,1]) + 目标距离([0,1]) + 目标角度cos([0,1]) + 目标角度sin([0,1]) = 39维
+        # 使用 sin/cos 编码角度, 避免 0° vs 360° 的表示不连续问题
+        # 堆叠连续2帧 (当前帧 + 前一帧), 共78维, 提供时序信息
         self.num_stack = 2
-        self._single_obs_dim = 38
+        self._single_obs_dim = 39
         self.observation_space = gym.spaces.Box(
             low=0.0, high=1.0,
             shape=(self._single_obs_dim * self.num_stack,),
@@ -65,9 +66,9 @@ class IrSimNavEnv(gym.Env):
         )
 
         # 超参数
-        self.max_steps = 500
-        self.lidar_range = 5.0
-        self.goal_threshold = 0.3  # 到达目标的距离阈值
+        self.max_steps = 1500  # 到达目标附近后需要额外时间绕过最后障碍
+        self.lidar_range = 10.0   # 匹配 YAML 中 lidar2d range_max: 10
+        self.goal_threshold = 1.0  # 机器人长1.6m, 中心距目标1m时前缘仅0.2m
         self.current_step = 0
         self._prev_dist = None     # 用于 progress reward 的上一帧距离
         self._prev_obs = None      # 用于帧堆叠的上一帧观测
@@ -133,12 +134,13 @@ class IrSimNavEnv(gym.Env):
         angle_to_goal = np.arctan2(
             diff[1], diff[0]) - float(robot.state[2].item())
 
-        dist_norm = np.clip(dist_to_goal / 14.0, 0, 1)
-        angle_norm = (angle_to_goal % (2 * np.pi)) / (2 * np.pi)
+        dist_norm = np.clip(dist_to_goal / 50.0, 0, 1)  # 世界 53x42, 起点到目标 39m
+        angle_cos = (np.cos(angle_to_goal) + 1.0) / 2.0  # 映射到 [0,1], 1=正对目标
+        angle_sin = (np.sin(angle_to_goal) + 1.0) / 2.0  # 映射到 [0,1]
 
         obs = np.concatenate([
             lidar_norm,
-            np.array([dist_norm, angle_norm], dtype=np.float32)
+            np.array([dist_norm, angle_cos, angle_sin], dtype=np.float32)
         ]).astype(np.float32)
 
         return obs
@@ -179,7 +181,7 @@ class IrSimNavEnv(gym.Env):
         self._prev_dist = dist
 
         # ---- 靠近目标奖励 (仅在 14m 范围内生效, 避免远距离负惩罚) ----
-        proximity_reward = max(0.0, 1.0 - dist / 14.0) * 0.3
+        proximity_reward = max(0.0, 1.0 - dist / 50.0) * 0.3
 
         # ---- 存活奖励 (抵消 step penalty, 鼓励探索) ----
         alive_bonus = 0.03

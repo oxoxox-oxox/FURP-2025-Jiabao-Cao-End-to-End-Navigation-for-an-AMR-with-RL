@@ -47,15 +47,15 @@ model = PPO(
     gamma=0.99,              # discount factor
     gae_lambda=0.95,         # GAE lambda
     clip_range=0.1,          # PPO clip range (reduced: prevents policy collapse)
-    ent_coef=0.01,           # entropy coefficient (gentle: prevent collapse without explosion)
-    target_kl=0.5,           # early stop KL threshold (looser: allow multi-epoch learning)
+    ent_coef=0.005,          # minimal entropy bonus: prevent total std collapse
+    target_kl=None,          # full n_epochs for thorough learning
     device='cuda',
     tensorboard_log=tb_dir,
 )
 
 # Train (no separate eval env — irsim is a global singleton)
 model.learn(
-    total_timesteps=500_000,
+    total_timesteps=500_000,  # 平衡: 足够学习但不过度坍缩 std
     eval_env=None,           # 不能用单独的 eval env——irsim 全局共享仿真
     eval_freq=5000,
     n_eval_episodes=10,
