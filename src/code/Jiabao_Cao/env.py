@@ -27,7 +27,7 @@ class IrSimNavEnv(gym.Env):
         - render_mode=None  : 无渲染, 后台运行 (用于训练, 速度最快)
     """
 
-    def __init__(self, yaml_file='./env/env_convex.yaml', render_mode=None,
+    def __init__(self, yaml_file='./env/env_corridor_1.yaml', render_mode=None,
                  display=None, disable_all_plot=None, seed=None, hist_n=3):
         super().__init__()
         # 支持单个 YAML 或列表（每 episode 随机切换场景）
@@ -262,6 +262,7 @@ class IrSimNavEnv(gym.Env):
 
         # ---- 朝向奖励 (鼓励机器人面朝目标) ----
         # cos(angle_to_goal): +1=正对目标, 0=垂直, -1=背对目标
+        diff = goal_pos - robot_pos
         robot_theta = float(robot.state[2].item())
         angle_to_goal = np.arctan2(diff[1], diff[0]) - robot_theta
         heading_alignment = np.cos(angle_to_goal)         # [-1, 1]

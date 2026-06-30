@@ -42,11 +42,12 @@ class Actor(nn.Module):
         LSTM hidden state dimension.
     """
 
-    def __init__(self, action_dim, hist_n=3, lstm_hidden_dim=24):
+    def __init__(self, action_dim, max_action, hist_n=3, lstm_hidden_dim=24):
         super(Actor, self).__init__()
 
         self.hist_n = hist_n
         self.lstm_hidden_dim = lstm_hidden_dim
+        self.max_action = max_action
 
         # ---- Per-frame CNN (共享权重) ----
         self.cnn1 = nn.Conv1d(1, 4, kernel_size=8, stride=4)       # (B, 1, 84) → (B, 4, 20)
@@ -152,7 +153,7 @@ class Actor(nn.Module):
         # ---- FC → action ----
         h = F.leaky_relu(self.layer_1(temporal_feat))
         h = F.leaky_relu(self.layer_2(h))
-        a = self.tanh(self.layer_3(h))
+        a = self.max_action * self.tanh(self.layer_3(h))
         return a
 
 
@@ -287,16 +288,12 @@ class Critic(nn.Module):
 
         # ---- Q1 ----
         h1 = F.leaky_relu(self.q1_layer_1(shared))
-        s1_part = torch.mm(h1, self.q1_layer_2_s.weight.data.t())
-        a1_part = torch.mm(action, self.q1_layer_2_a.weight.data.t())
-        h1 = F.leaky_relu(s1_part + a1_part + self.q1_layer_2_a.bias.data)
+        h1 = F.leaky_relu(self.q1_layer_2_s(h1) + self.q1_layer_2_a(action))
         q1 = self.q1_layer_3(h1)
 
         # ---- Q2 ----
         h2 = F.leaky_relu(self.q2_layer_1(shared))
-        s2_part = torch.mm(h2, self.q2_layer_2_s.weight.data.t())
-        a2_part = torch.mm(action, self.q2_layer_2_a.weight.data.t())
-        h2 = F.leaky_relu(s2_part + a2_part + self.q2_layer_2_a.bias.data)
+        h2 = F.leaky_relu(self.q2_layer_2_s(h2) + self.q2_layer_2_a(action))
         q2 = self.q2_layer_3(h2)
 
         return q1, q2
@@ -358,8 +355,8 @@ class CNNRC(object):
         self.lstm_hidden_dim = lstm_hidden_dim
 
         # Actor
-        self.actor = Actor(action_dim, hist_n=hist_n, lstm_hidden_dim=lstm_hidden_dim).to(self.device)
-        self.actor_target = Actor(action_dim, hist_n=hist_n, lstm_hidden_dim=lstm_hidden_dim).to(self.device)
+        self.actor = Actor(action_dim, max_action, hist_n=hist_n, lstm_hidden_dim=lstm_hidden_dim).to(self.device)
+        self.actor_target = Actor(action_dim, max_action, hist_n=hist_n, lstm_hidden_dim=lstm_hidden_dim).to(self.device)
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.actor_optimizer = torch.optim.Adam(params=self.actor.parameters(), lr=lr)
 
@@ -491,6 +488,7 @@ class CNNRC(object):
 
             self.critic_optimizer.zero_grad()
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.critic.parameters(), max_norm=1.0)
             self.critic_optimizer.step()
 
             # ---- 延迟策略更新 ----
@@ -500,6 +498,7 @@ class CNNRC(object):
 
                 self.actor_optimizer.zero_grad()
                 actor_loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.actor.parameters(), max_norm=1.0)
                 self.actor_optimizer.step()
 
                 # ---- 软更新 target 网络 ----

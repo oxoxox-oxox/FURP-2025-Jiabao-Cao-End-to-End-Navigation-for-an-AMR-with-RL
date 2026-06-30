@@ -65,7 +65,7 @@ def main():
     )
 
     env = IrSimNavEnv(
-        yaml_file='./env/env_convex_td3.yaml',
+        yaml_file='./env/env_corridor_2.yaml',
         render_mode='human',
         hist_n=HIST_N,
     )

@@ -27,11 +27,7 @@ from replay_buffer_td3 import ReplayBuffer
 
 # 分阶段训练: (YAML, 步数)
 TRAIN_PHASES = [
-    ('./env/env_convex_td3.yaml',   200_000),
-    ('./env/env_corridor_1.yaml',   200_000),
-    ('./env/env_corridor_2.yaml',   200_000),
-    ('./env/env_convex_td3.yaml',   200_000),
-    ('./env/env.yaml',              200_000)
+    ('./env/env.yaml',   500_000)
 ]
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
