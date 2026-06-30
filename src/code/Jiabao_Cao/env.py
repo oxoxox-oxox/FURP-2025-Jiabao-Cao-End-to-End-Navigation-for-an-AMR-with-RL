@@ -10,6 +10,8 @@ IrSimNavEnv: gymnasium-compatible wrapper for ir-sim.
 动作: [线速度v, 角速度w] (连续), 供 TD3 policy 映射
 """
 
+from collections import deque
+
 import gymnasium as gym
 import numpy as np
 import irsim
@@ -26,7 +28,7 @@ class IrSimNavEnv(gym.Env):
     """
 
     def __init__(self, yaml_file='./env/env_convex.yaml', render_mode=None,
-                 display=None, disable_all_plot=None, seed=None):
+                 display=None, disable_all_plot=None, seed=None, hist_n=3):
         super().__init__()
         # 支持单个 YAML 或列表（每 episode 随机切换场景）
         if isinstance(yaml_file, (list, tuple)):
@@ -63,19 +65,19 @@ class IrSimNavEnv(gym.Env):
         )
 
         # ===== 观测空间 =====
-        # LiDAR 原始距离值: N 条射线, 除以 lidar_range=10 归一化
-        # 目标信息: dist/10 + cos + sin = 3维
-        # 速度编码: v*2, (w+1)/2 = 2维
-        # 单帧: N + 5 维 (N 从 YAML 中 LiDAR number 动态读取)
-        self.num_stack = 1
+        # 堆叠 hist_n 帧, 每帧: N 条 LiDAR 距离值 + 5 维 (dist/cos/sin + v_enc + w_enc)
+        self.hist_n = hist_n
         lidar_data = self.env.robot_list[0].get_lidar_scan()
         self._num_lidar_rays = len(np.array(lidar_data['ranges']).flatten())
         self._single_obs_dim = self._num_lidar_rays + 5
         self.observation_space = gym.spaces.Box(
             low=-1.0, high=1.0,
-            shape=(self._single_obs_dim,),
+            shape=(self._single_obs_dim * self.hist_n,),
             dtype=np.float32
         )
+
+        # 帧缓冲区 (FIFO)
+        self._obs_history = deque(maxlen=self.hist_n)
 
         # 超参数
         self.max_steps = 1500  # 到达目标附近后需要额外时间绕过最后障碍
@@ -116,7 +118,13 @@ class IrSimNavEnv(gym.Env):
 
         single_obs = self._get_observation()
         self._prev_obs = single_obs.copy()
-        return single_obs, {}
+
+        # ---- 帧堆叠: 用首帧填充整个缓冲区 ----
+        self._obs_history.clear()
+        for _ in range(self.hist_n):
+            self._obs_history.append(single_obs.copy())
+
+        return self._get_stacked_obs(), {}
 
     def step(self, action):
         self.current_step += 1
@@ -128,7 +136,10 @@ class IrSimNavEnv(gym.Env):
         single_obs = self._get_observation()
         reward, done, info = self._compute_reward()
 
-        obs = single_obs
+        # ---- 帧堆叠: 推入新帧, 返回堆叠观测 ----
+        self._obs_history.append(single_obs.copy())
+        obs = self._get_stacked_obs()
+
         self._prev_obs = single_obs.copy()
 
         # 超时截断 (truncated ≠ done by collision/success)
@@ -139,6 +150,10 @@ class IrSimNavEnv(gym.Env):
             info['episode_length'] = self.current_step
 
         return obs, reward, done, truncated, info
+
+    def _get_stacked_obs(self):
+        """将帧缓冲区拼接为堆叠观测向量: (hist_n * single_obs_dim,)."""
+        return np.concatenate(list(self._obs_history)).astype(np.float32)
 
     def _get_observation(self):
         """构建 CNNTD3 观测向量。
@@ -232,15 +247,32 @@ class IrSimNavEnv(gym.Env):
         # ---- 激光空旷奖励 (鼓励朝向开阔方向, 间接帮助避障) ----
         lidar_data = robot.get_lidar_scan()
         ranges = np.array(lidar_data['ranges']).flatten()
-        min_dist = np.min(ranges) / self.lidar_range
-        clearance = np.clip(min_dist, 0, 1)       # 越远→1, 越近→0
-        clearance_bonus = clearance * 0.05        # max 0.05 when all clear
+        min_dist_raw = np.min(ranges)              # 原始距离（单位：米）
+        min_dist_norm = min_dist_raw / self.lidar_range  # 归一化到 [0, 1]
 
-        # ---- 时间惩罚 (促使尽快到达, 越晚惩罚越大) ----
+        # 设定安全阈值（归一化后）。例如 0.2 表示实际距离 < 20% 的雷达量程时触发惩罚
+        safety_threshold = 0.2  
+        if min_dist_norm < safety_threshold:
+            # 越近惩罚越大，呈线性增长。
+            # 当完全贴近 (min_dist_norm=0) 时，惩罚为 -2.0 * 0.2 = -0.4
+            # 当刚好在阈值边界 (min_dist_norm=0.2) 时，惩罚为 0
+            clearance_penalty = -2.0 * (safety_threshold - min_dist_norm)
+        else:
+            clearance_penalty = 0.0
+
+        # ---- 朝向奖励 (鼓励机器人面朝目标) ----
+        # cos(angle_to_goal): +1=正对目标, 0=垂直, -1=背对目标
+        robot_theta = float(robot.state[2].item())
+        angle_to_goal = np.arctan2(diff[1], diff[0]) - robot_theta
+        heading_alignment = np.cos(angle_to_goal)         # [-1, 1]
+        heading_reward = heading_alignment * 0.15         # [-0.15, +0.15]
+
+        # ---- 时间惩罚 (指数增长, 越晚惩罚急剧加大) ----
         progress_ratio = self.current_step / self.max_steps
-        time_penalty = -0.1 - 0.4 * progress_ratio   # -0.1 → -0.5
+        time_penalty = -0.2 * np.exp(2.0 * progress_ratio)   # -0.10 → -0.74
 
-        reward = (progress_reward + proximity_reward + time_penalty + clearance_bonus)
+        reward = (progress_reward + proximity_reward + heading_reward
+                  + time_penalty + clearance_penalty)
         info['result'] = 'running'
         return reward, done, info
 

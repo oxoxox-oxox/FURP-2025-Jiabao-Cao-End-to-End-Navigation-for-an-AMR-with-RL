@@ -1,0 +1,41 @@
+world:
+  height: 42
+  width: 42
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [5, 5]
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'rectangle', length: 1.6, width: 2.0}
+    state: [0, 25, 0]
+    goal: [50, 25, 0]
+    vel_min: [-8, -3.14]
+    vel_max: [8, 3.14]
+    goal_threshold: 0.3
+    description: diff_robot0.png
+    plot:
+      show_trail: True
+      traj_color: 'g'
+      show_trajectory: False
+      show_goal: False
+
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 10
+        angle_range: 3.1415926
+        number: 84
+        noise: False
+
+obstacle:
+  - number: 12
+    distribution: {name: 'random', range_low: [5, 5, -3.14], range_high: [45, 45, 3.14]}
+    shape:
+      - {name: 'circle', radius: 1.5}
+      - {name: 'circle', radius: 1.0}
+      - {name: 'circle', radius: 0.8}
+      - {name: 'circle', radius: 0.5}
