@@ -22,11 +22,9 @@
 
 真正的创新点是什么？
 
-Novelty 1:
-
-Novelty 2:
-
-Novelty 3:
+1. Novelty 1
+2. Novelty 2
+3. Novelty 3
 
 ---
 
@@ -40,35 +38,31 @@ Difference:
 
 ## 6. Feasibility
 
-Data:
-
-Simulator:
-
-Code:
-
-GPU:
-
-Difficulty:
+| | |
+| --------- | ----------------------------------- |
+| Data | 数据集来源 |
+| Simulator | 仿真环境 |
+| Code | 实现代码 |
+| GPU | 显卡需求 |
+| Difficulty | 难度(1-5) |
 
 ---
 
 ## 7. Expected Contribution
 
-理论贡献：
+- 理论贡献：
 
-工程贡献：
+- 工程贡献：
 
-实验贡献：
+- 实验贡献：
 
 ---
 
 ## 8. Risks
 
-Risk 1
-
-Risk 2
-
-Risk 3
+1. Risk 1
+2. Risk 2
+3. Risk 3
 
 ---
 
@@ -78,4 +72,4 @@ Risk 3
 
 ## 10. Reviewer Questions
 
-Q1 [例]为什么不用Data Augmentation？
+- Q1 [例]为什么不用Data Augmentation？
