@@ -1,24 +1,24 @@
 # Research Topic
 
-## Motivation
+## 1. Motivation
 
 为什么值得做？
 
 ---
 
-## Core Idea
+## 2. Core Idea
 
 你打算怎么做？
 
 ---
 
-## Research Gap
+## 3. Research Gap
 
 别人没有解决什么？
 
 ---
 
-## Novelty
+## 4. Novelty
 
 真正的创新点是什么？
 
@@ -30,7 +30,7 @@ Novelty 3:
 
 ---
 
-## Related Work
+## 5. Related Work
 
 Paper:
 
@@ -38,7 +38,7 @@ Difference:
 
 ---
 
-## Feasibility
+## 6. Feasibility
 
 Data:
 
@@ -52,7 +52,7 @@ Difficulty:
 
 ---
 
-## Expected Contribution
+## 7. Expected Contribution
 
 理论贡献：
 
@@ -62,7 +62,7 @@ Difficulty:
 
 ---
 
-## Risks
+## 8. Risks
 
 Risk 1
 
@@ -72,10 +72,10 @@ Risk 3
 
 ---
 
-## Next Step
+## 9. Next Step
 
 - 描述大致计划
 
-## Reviewer Questions
+## 10. Reviewer Questions
 
 Q1 [例]为什么不用Data Augmentation？
