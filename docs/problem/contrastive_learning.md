@@ -66,7 +66,7 @@ Difference:
 | Simulator | Isaac Sim、Habitat、Gazebo |
 | Code | 对现有 RL 框架修改 Encoder |
 | GPU | RTX 3060 + |
-| Difficulty | 3 |
+| Difficulty | 2 |
 
 ---
 
