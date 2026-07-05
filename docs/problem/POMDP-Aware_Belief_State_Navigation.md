@@ -13,6 +13,8 @@
   - 这说明简单加记忆（GRU）不能正确解决POMDP问题，需要更有针对性的信息融合机制
 - 虽然很多论文在"问题建模"部分写了POMDP公式，但实际算法设计中并没有显式利用部分可观察性——GRU/LSTM只是作为特征提取器使用，没有建模belief state
 
+---
+
 ## 2. Core Idea
 你打算怎么做？
 
@@ -40,6 +42,8 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 
 **训练方式**：仍然用TD3，只是状态空间扩大了，网络结构需要增加一个小型CNN分支处理占用记忆图。
 
+---
+
 ## 3. Research Gap
 别人没有解决什么？
 
@@ -47,6 +51,8 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 - **GRU作为POMDP近似的局限性未被量化**：我们的预实验首次发现GRU在某些POMDP场景（窄门）有帮助，但在另一些场景（双U）反而有害——这种双刃剑效应在文献中**没有被系统报道过**
 - **轻量级Belief State在LiDAR导航中的缺失**：现有显式belief state方法（如QMDP-Net、FORBES）针对视觉导航或自动驾驶，使用复杂的生成模型（Normalizing Flow、Transformer），不适合资源受限的AMR平台
 - **DreamerNav（2025）**将POMDP+世界模型用于导航，但依赖深度相机和全局占用图，不是纯LiDAR端到端方案
+
+---
 
 ## 4. Novelty
 真正的创新点是什么？
@@ -56,6 +62,8 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 2. **GRU双刃剑效应的系统分析与解决**：首次量化"隐式记忆（GRU）在不同POMDP场景下的正负效应"，并提出显式belief state作为替代方案——在保留记忆优势（窄门精确对齐）的同时避免其劣势（路径惯性导致无法回头）
 
 3. **POMDP视角对U-trap失败的全新解释**：标准MDP视角下，U-trap失败被归因于"探索不足"（需要更强的探索奖励）；POMDP视角下，失败被归因于"信息不足"（机器人不知道自己在陷阱里）——两种解释导致完全不同的解决方案，我们通过实验对比两者
+
+---
 
 ## 5. Related Work
 
@@ -75,6 +83,8 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 - DreamerNav依赖深度相机+世界模型，我们是**纯LiDAR端到端方案**，适合资源受限平台
 - 我们是**首个系统量化GRU在不同POMDP导航场景下双刃剑效应**的工作
 
+---
+
 ## 6. Feasibility
 
 | 项目 | 说明 |
@@ -82,14 +92,18 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 | Data | IR-SIM / Isaac Sim在线生成 |
 | Simulator | IR-SIM（当前），后续可迁移Isaac Sim |
 | Code | 在CNNTD3基础上扩展状态空间（加占用记忆图分支），约200行新代码 |
-| GPU | 都行 |
+| GPU | 没要求 |
 | Difficulty | 3/5（占用记忆图的坐标变换和栅格更新有一定工程难度，但数学不复杂） |
+
+---
 
 ## 7. Expected Contribution
 
 - **理论贡献**：提出LiDAR导航中POMDP vs MDP建模的系统分析框架；揭示GRU隐式记忆的双刃剑效应机制（窄门有利、双U有害）；提出"信息不足"（POMDP视角）vs"探索不足"（MDP视角）对U-trap失败的两种竞争性解释，并通过实验区分两者
 - **工程贡献**：轻量级Belief State模块（占用记忆图+轨迹编码），推理开销<0.5ms，可在ARM CPU上实时运行；即插即用，可集成到任意LiDAR RL导航框架
 - **实验贡献**：首次在结构化困难场景（U-trap、双U、对称走廊、窄门）下系统对比MDP策略、GRU隐式记忆、显式Belief State三种方案的效果差异
+
+---
 
 ## 8. Risks
 
@@ -101,7 +115,7 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 
 4. **与简单GRU的对比可能不够公平**：GRU只用了10步历史，如果增加到50步或100步可能也能学到类似的belief信息。解决：系统扫描GRU的历史长度（5/10/20/50/100步），证明即使增加长度也无法弥补"隐式记忆"的结构性缺陷
 
-$$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\theta, \sin\theta}_{\text{goal}}, \underbrace{M_{20\times20}}_{\text{占用记忆图}}, \underbrace{h_{traj}}_{\text{轨迹编码}}, \underbrace{t/T}_{\text{时间比例}}]$$
+---
 
 ## 9. Next Step
 
@@ -111,6 +125,8 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 - [ ] 对比实验：CNNTD3（MDP）vs RCPG（隐式POMDP）vs CNNTD3+Belief（显式POMDP）
 - [ ] 在5个结构化困难场景系统评测
 - [ ] 真机部署验证（占用记忆图在真实LiDAR噪声下的鲁棒性）
+
+---
 
 ## 10. Reviewer Questions
 
