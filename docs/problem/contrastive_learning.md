@@ -29,6 +29,7 @@
 - 现有视觉导航主要依赖数据增强，没有显式约束相同场景应具有一致的导航表示
 - Contrastive Learning 多用于分类、定位、Place Recognition，很少应用于 End-to-End RL Navigation
 - 模拟器能够提供精确 Pose 信息，但很少利用其自动构造 Positive Pair
+- 所有类似 CLIP backbone 提供的都是 semantic feature，但是导航需要的是空间几何性质的 alignment
 
 ---
 
@@ -64,7 +65,7 @@ Difference:
 | Data | 模拟器在线生成 |
 | Simulator | Isaac Sim、Habitat、Gazebo |
 | Code | 对现有 RL 框架修改 Encoder |
-| GPU | RTX 4070 |
+| GPU | RTX 3060 + |
 | Difficulty | 3 |
 
 ---
