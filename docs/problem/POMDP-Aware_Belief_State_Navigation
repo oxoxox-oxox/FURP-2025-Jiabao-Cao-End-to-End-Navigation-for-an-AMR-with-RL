@@ -71,11 +71,11 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 
 | 论文 | 关联 | 链接 |
 |------|------|------|
-| QMDP-Net, NeurIPS 2017 | 首个将POMDP结构嵌入神经网络的工作，但用于视觉栅格导航 | https://proceedings.neurips.cc/paper_files/paper/2017/file/e9412ee564384b987d086df32d4ce6b7-Paper.pdf |
-| FORBES (Flow-based Recurrent Belief State), ICML 2022 | 用Normalizing Flow建模belief state，但计算开销大 | https://proceedings.mlr.press/v162/chen22q/chen22q.pdf |
-| DreamerNav (DreamerV3 + Navigation), Frontiers 2025 | POMDP+世界模型导航，依赖深度相机，非LiDAR | http://frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2025.1655171/full |
-| DQN+GRU for LiDAR Navigation, arxiv 2021 | 用GRU近似POMDP，但未分析GRU的局限性 | https://ui.adsabs.harvard.edu/abs/2021arXiv211202954K/abstract |
-| Spatially-Enhanced Recurrent Memory, arxiv 2025 | 空间增强记忆用于长距离导航，但未显式构建belief state | https://export.arxiv.org/abs/2506.05997 |
+| QMDP-Net, NeurIPS 2017 | 首个将POMDP结构嵌入神经网络的工作，但用于视觉栅格导航 | https://proceedings.neurips.cc/paper_files/paper/2017/file/e9412ee564384b987d086df32d4ce6b7-Paper.pdf  |
+| FORBES (Flow-based Recurrent Belief State), ICML 2022 | 用Normalizing Flow建模belief state，但计算开销大 | https://proceedings.mlr.press/v162/chen22q/chen22q.pdf  |
+| DreamerNav (DreamerV3 + Navigation), Frontiers 2025 | POMDP+世界模型导航，依赖深度相机，非LiDAR | http://frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2025.1655171/full  |
+| DQN+GRU for LiDAR Navigation, arxiv 2021 | 用GRU近似POMDP，但未分析GRU的局限性 | https://ui.adsabs.harvard.edu/abs/2021arXiv211202954K/abstract  |
+| Spatially-Enhanced Recurrent Memory, arxiv 2025 | 空间增强记忆用于长距离导航，但未显式构建belief state | https://export.arxiv.org/abs/2506.05997  |
 
 **Difference:**
 - QMDP-Net/FORBES用复杂生成模型建模belief，我们用**轻量级占用记忆图**（无需训练额外生成模型）
