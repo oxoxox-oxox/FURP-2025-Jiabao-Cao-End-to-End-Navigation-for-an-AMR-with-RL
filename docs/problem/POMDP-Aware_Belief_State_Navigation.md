@@ -48,7 +48,6 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 别人没有解决什么？
 
 - **POMDP公式化 ≠ POMDP解法**：大量LiDAR导航论文在Section 2写了POMDP公式，但实际算法只是标准MDP的策略梯度/Actor-Critic，没有显式建模belief state。GRU/LSTM作为隐式belief近似，但其有效性**从未在结构化困难场景中被系统评估**
-- **GRU作为POMDP近似的局限性未被量化**：我们的预实验首次发现GRU在某些POMDP场景（窄门）有帮助，但在另一些场景（双U）反而有害——这种双刃剑效应在文献中**没有被系统报道过**
 - **轻量级Belief State在LiDAR导航中的缺失**：现有显式belief state方法（如QMDP-Net、FORBES）针对视觉导航或自动驾驶，使用复杂的生成模型（Normalizing Flow、Transformer），不适合资源受限的AMR平台
 - **DreamerNav（2025）**将POMDP+世界模型用于导航，但依赖深度相机和全局占用图，不是纯LiDAR端到端方案
 
@@ -59,7 +58,7 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 
 1. **轻量级Belief State设计**：提出基于局部占用记忆图+轨迹编码的显式belief表示，不需要世界模型或生成模型，计算开销极低（一个20×20的栅格更新+简单统计），适合ARM CPU部署
 
-2. **GRU双刃剑效应的系统分析与解决**：首次量化"隐式记忆（GRU）在不同POMDP场景下的正负效应"，并提出显式belief state作为替代方案——在保留记忆优势（窄门精确对齐）的同时避免其劣势（路径惯性导致无法回头）
+2. **GRU双刃剑效应的系统分析与解决**：量化"隐式记忆（GRU）在不同POMDP场景下的正负效应"，并提出显式belief state作为替代方案——在保留记忆优势（窄门精确对齐）的同时避免其劣势（路径惯性导致无法回头）
 
 3. **POMDP视角对U-trap失败的全新解释**：标准MDP视角下，U-trap失败被归因于"探索不足"（需要更强的探索奖励）；POMDP视角下，失败被归因于"信息不足"（机器人不知道自己在陷阱里）——两种解释导致完全不同的解决方案，我们通过实验对比两者
 
@@ -81,7 +80,7 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 - QMDP-Net/FORBES用复杂生成模型建模belief，我们用**轻量级占用记忆图**（无需训练额外生成模型）
 - DQN+GRU只是隐式近似POMDP，我们**显式构建belief state**并分析其对策略的影响
 - DreamerNav依赖深度相机+世界模型，我们是**纯LiDAR端到端方案**，适合资源受限平台
-- 我们是**首个系统量化GRU在不同POMDP导航场景下双刃剑效应**的工作
+- 我们是**系统量化GRU在不同POMDP导航场景下双刃剑效应**的工作
 
 ---
 
