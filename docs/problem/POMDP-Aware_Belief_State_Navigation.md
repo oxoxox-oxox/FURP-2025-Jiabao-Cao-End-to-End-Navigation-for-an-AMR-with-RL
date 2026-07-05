@@ -41,6 +41,7 @@
 \[
 s_{belief} = [ \underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\theta, \sin\theta}_{\text{goal}}, \underbrace{M_{20\times20}}_{\text{占用记忆图}}, \underbrace{h_{traj}}_{\text{轨迹编码}}, \underbrace{t/T}_{\text{时间比例}} ]
 \]
+
 **训练方式**：仍然用TD3，只是状态空间扩大了，网络结构需要增加一个小型CNN分支处理占用记忆图。
 
 ---
