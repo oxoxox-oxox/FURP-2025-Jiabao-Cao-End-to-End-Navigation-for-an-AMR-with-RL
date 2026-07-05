@@ -38,8 +38,9 @@
 - **关键作用**：给策略提供"是否快要超时"的紧迫感，在接近超时时触发更激进的探索
 
 **策略网络输入**：
-$$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\theta, \sin\theta}_{\text{goal}}, \underbrace{M_{20\times20}}_{\text{占用记忆图}}, \underbrace{h_{traj}}_{\text{轨迹编码}}, \underbrace{t/T}_{\text{时间比例}}]$$
-
+\[
+s_{belief} = [ \underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\theta, \sin\theta}_{\text{goal}}, \underbrace{M_{20\times20}}_{\text{占用记忆图}}, \underbrace{h_{traj}}_{\text{轨迹编码}}, \underbrace{t/T}_{\text{时间比例}} ]
+\]
 **训练方式**：仍然用TD3，只是状态空间扩大了，网络结构需要增加一个小型CNN分支处理占用记忆图。
 
 ---
