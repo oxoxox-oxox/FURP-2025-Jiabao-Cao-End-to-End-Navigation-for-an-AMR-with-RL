@@ -67,7 +67,8 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 
 ## 5. Related Work
 
-**Paper:**
+**Paper:**$$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\theta, \sin\theta}_{\text{goal}}, \underbrace{M_{20\times20}}_{\text{占用记忆图}}, \underbrace{h_{traj}}_{\text{轨迹编码}}, \underbrace{t/T}_{\text{时间比例}}]$$
+
 
 | 论文 | 关联 | 链接 |
 |------|------|------|
@@ -116,6 +117,7 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 4. **与简单GRU的对比可能不够公平**：GRU只用了10步历史，如果增加到50步或100步可能也能学到类似的belief信息。解决：系统扫描GRU的历史长度（5/10/20/50/100步），证明即使增加长度也无法弥补"隐式记忆"的结构性缺陷
 
 ---
+$$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\theta, \sin\theta}_{\text{goal}}, \underbrace{M_{20\times20}}_{\text{占用记忆图}}, \underbrace{h_{traj}}_{\text{轨迹编码}}, \underbrace{t/T}_{\text{时间比例}}]$$
 
 ## 9. Next Step
 
@@ -147,3 +149,4 @@ $$s_{belief} = [\underbrace{l_1...l_{180}}_{\text{LiDAR}}, \underbrace{d, \cos\t
 
 - **Q6** 这个方法和World Model（如DreamerV3）有什么本质区别？
   → World Model学习环境的完整动力学模型（状态转移+奖励预测），计算开销大；我们的占用记忆图只做"观测累积"（把多帧LiDAR叠加到一张图上），不做任何预测，是一种"被动记忆"而非"主动建模"，计算开销低两个数量级
+
