@@ -1,0 +1,77 @@
+world:
+  height: 30
+  width: 70
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [-5, 5]
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'rectangle', length: 1.6, width: 2.0}
+    state: [-5, 20, 0]
+    goal: [55, 20, 0]
+    vel_min: [-8, -3.14]
+    vel_max: [8, 3.14]
+    goal_threshold: 1.0
+    plot:
+      show_trail: True
+      show_goal: True
+      show_trajectory: False
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 10
+        angle_range: 3.1415926
+        number: 100
+        noise: False
+
+obstacle:
+  # ===== 静态部分：走廊墙 + 一个迫使转弯的障碍 =====
+  - number: 3
+    distribution: {name: 'manual'}
+    shape:
+      - {name: 'rectangle', length: 70, width: 2}
+      - {name: 'rectangle', length: 70, width: 2}
+      - {name: 'rectangle', length: 7, width: 2}
+    state: [[30, 27, 0], [30, 13, 0], [10, 18, 1.57]]
+
+  # ===== 快速动态障碍物：1.5 m/s =====
+  # 延迟致命性估算: 1.5 m/s × 1.0 s(最大延迟) = 1.5 m 位置误差
+  # 远大于NeuPAN安全裕度(collision_threshold=0.1 + 感知余量)
+  - number: 3
+    distribution: {name: 'random', range_low: [20, 15, -3.14], range_high: [50, 25, 3.14]}
+    kinematics: {name: 'diff'}
+    shape:
+      - {name: 'circle', radius: 0.6}
+      - {name: 'circle', radius: 0.7}
+      - {name: 'circle', radius: 0.6}
+    behavior:
+      - {name: 'rvo', range_low: [15, 14, -3.14], range_high: [55, 26, 3.14], wander: True, vxmax: 1.5, vymax: 1.5}
+    vel_min: [-2.0, -3.14]
+    vel_max: [2.0, 3.14]
+    arrive_mode: position
+    goal_threshold: 0.3
+    plot:
+      show_goal: False
+      show_arrow: True
+
+  # ===== 横穿障碍物：在机器人主路径(y=20)上垂直往返穿越 =====
+  # 机器人到达x≈35附近时大概率与其相遇，考验延迟下的避让
+  - number: 2
+    distribution: {name: 'manual'}
+    kinematics: {name: 'diff'}
+    shape:
+      - {name: 'circle', radius: 0.8}
+      - {name: 'circle', radius: 0.8}
+    state: [[35, 25, -1.57], [45, 15, 1.57]]
+    behavior:
+      - {name: 'rvo', range_low: [33, 14, -3.14], range_high: [47, 26, 3.14], wander: True, vxmax: 1.8, vymax: 1.8}
+    vel_min: [-2.0, -3.14]
+    vel_max: [2.0, 3.14]
+    arrive_mode: position
+    goal_threshold: 0.3
+    plot:
+      show_goal: False
+      show_arrow: True

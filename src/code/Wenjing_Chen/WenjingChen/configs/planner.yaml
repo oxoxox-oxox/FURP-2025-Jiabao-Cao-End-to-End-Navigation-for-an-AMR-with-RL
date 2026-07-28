@@ -1,0 +1,41 @@
+# ========= mpc =========
+receding: 30         # 10-12, 增加预测时域，提前看到障碍物
+step_time: 0.2        # 保持0.2s
+ref_speed: 1.2        # 1.0->0.8, 降低速度给避障留出更多反应时间
+device: 'cpu'
+time_print: False
+collision_threshold: -10.01
+
+# ========= robot =========
+robot:
+  kinematics: 'diff'
+  max_speed: [1.2, 1.5]    # [1.5,1.8]->[1.2,1.5], 进一步限速，撞墙风险降低
+  max_acce: [1.0, 1.2]     # [1.2,1.5]->[1.0,1.2], 降低加速度避免急冲
+  length: 0.322
+  width: 0.22
+
+# ========= initial path =========
+ipath:
+  interval: 0.03
+  curve_style: 'line'   # 'dubins' or reeds or line
+  min_radius: 0.05
+  loop: False
+  arrive_threshold: 0.1
+  close_threshold: 0.05
+  arrive_index_threshold: 3
+
+# ========= pan (核心优化) =========
+pan:
+  iter_num: 2           # 3->2, 减少迭代保证算能跟上控制频率
+  dune_max_num: 100     # 80->100, 增加采样点提高障碍物感知精度
+  nrmp_max_num: 8       # 6->8, 增加NRMP采样点
+  dune_checkpoint: None
+  iter_threshold: 0.15  # 0.12-0.15, 放宽收敛条件
+
+# ========= adjust (关键调整) =========
+adjust:
+  q_s: 1.5             # 1.2->0.8, 降低路径跟随权重，优先避障
+  p_u: 0.5              # 0.6-0.5, 稍微降低平滑约束
+  eta: 10            # 10.0-25.0, 大幅提高障碍物惩罚，让机器人更怕墙
+  d_max: 0.25           # 0.18-0.25, 增大安全距离，提前避障
+  d_min: 0.05          # 0.01-0.05, 提高最小距离阈值

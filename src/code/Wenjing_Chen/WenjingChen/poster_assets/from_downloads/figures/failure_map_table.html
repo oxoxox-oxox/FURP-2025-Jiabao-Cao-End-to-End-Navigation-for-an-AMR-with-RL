@@ -1,0 +1,101 @@
+<style>
+body{margin:0;padding:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;padding:8px 10px;text-align:left;border-bottom:1px solid var(--color-border-secondary)}
+td{padding:7px 10px;border-bottom:1px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+tr:last-child td{border-bottom:none}
+.sr-bad{color:#A32D2D;font-weight:500}
+.sr-mid{color:#BA7517;font-weight:500}
+.sr-good{color:#3B6D11;font-weight:500}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-trap{background:#FCEBEB;color:#A32D2D}
+.tag-sym{background:#FAEEDA;color:#854F0B}
+.tag-nav{background:#E1F5EE;color:#0F6E56}
+.tag-ok{background:#EAF3DE;color:#3B6D11}
+</style>
+<table>
+<thead>
+<tr>
+  <th>场景</th>
+  <th>SR</th>
+  <th>CR</th>
+  <th>TR</th>
+  <th>失败模式</th>
+  <th>根本原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Baseline（随机障碍）</td>
+  <td class="sr-good">92%</td>
+  <td>8%</td>
+  <td>0%</td>
+  <td><span class="tag tag-ok">正常</span></td>
+  <td>训练分布内，表现正常</td>
+</tr>
+<tr>
+  <td>S1 U形陷阱</td>
+  <td class="sr-bad">0%</td>
+  <td>0%</td>
+  <td>100%</td>
+  <td><span class="tag tag-trap">原地打转</span></td>
+  <td>lidar被三面墙遮蔽，goal信号穿过墙壁，无法规划退出路径</td>
+</tr>
+<tr>
+  <td>S2 双U陷阱（朝右）</td>
+  <td class="sr-good">100%</td>
+  <td>0%</td>
+  <td>0%</td>
+  <td><span class="tag tag-ok">通过</span></td>
+  <td>朝右时goal信号直接引导，绕过两U</td>
+</tr>
+<tr>
+  <td>S2 双U陷阱（朝上/左）</td>
+  <td class="sr-bad">33%</td>
+  <td>0%</td>
+  <td>67%</td>
+  <td><span class="tag tag-trap">误入U形</span></td>
+  <td>朝上时直接进入上方U形，进入后不会退出</td>
+</tr>
+<tr>
+  <td>S3 窄门（≥0.6m）</td>
+  <td class="sr-good">100%</td>
+  <td>0%</td>
+  <td>0%</td>
+  <td><span class="tag tag-ok">通过</span></td>
+  <td>不是弱点，CNN能处理窄空间</td>
+</tr>
+<tr>
+  <td>S3 窄门（0.45~0.5m）</td>
+  <td class="sr-bad">0~5%</td>
+  <td>95~100%</td>
+  <td>0%</td>
+  <td><span class="tag tag-trap">撞门框</span></td>
+  <td>门宽仅比robot直径多0.05~0.1m，精度不足以对准通过</td>
+</tr>
+<tr>
+  <td>S4 死路迷宫</td>
+  <td class="sr-mid">67%</td>
+  <td>0%</td>
+  <td>33%</td>
+  <td><span class="tag tag-trap">进死路不退</span></td>
+  <td>无记忆机制，进入死路后不会回溯，300步耗尽</td>
+</tr>
+<tr>
+  <td>S5 对称走廊（朝右）</td>
+  <td class="sr-good">100%</td>
+  <td>0%</td>
+  <td>0%</td>
+  <td><span class="tag tag-ok">通过</span></td>
+  <td>初始朝向与goal方向一致，直接前进</td>
+</tr>
+<tr>
+  <td>S5 对称走廊（朝左）</td>
+  <td class="sr-bad">0%</td>
+  <td>0%</td>
+  <td>100%</td>
+  <td><span class="tag tag-sym">对称震荡</span></td>
+  <td>lidar上下完全对称，policy输出震荡无法转向，永久卡住</td>
+</tr>
+</tbody>
+</table>

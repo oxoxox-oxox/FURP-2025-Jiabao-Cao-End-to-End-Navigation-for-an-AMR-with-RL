@@ -1,0 +1,69 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{DRL for Mapless Navigation}
+
+Tai et al.~\cite{tai2017virtual} demonstrated that a policy trained
+entirely in simulation can transfer to physical robots using raw
+2D LiDAR observations, establishing the viability of end-to-end
+sim-to-real navigation without explicit mapping. Pfeiffer et
+al.~\cite{pfeiffer2017dl} extended this paradigm to data-driven motion
+planning, showing strong generalization across varied indoor layouts.
+These approaches typically pair a 1D convolutional feature extractor
+with an off-policy actor-critic algorithm such as
+TD3~\cite{fujimoto2018td3}, the architecture we adopt as our baseline.
+While effective in randomized obstacle environments, such policies are
+evaluated almost exclusively on metrics aggregated over diverse but
+unstructured scenes, which we show in Section~\ref{sec:results} masks
+systematic failure modes in concave or symmetric geometries.
+
+\subsection{Memory-Augmented Navigation}
+
+Recurrent architectures have been proposed to give navigation policies
+access to temporal context beyond the instantaneous sensor reading,
+under the assumption that memory of recent observations aids decision-
+making in partially observable settings. We test this hypothesis with
+a GRU-based variant (RCPG) and find the effect to be scenario-
+dependent rather than uniformly beneficial: temporal memory improves
+performance in tasks requiring precise alignment (narrow doorways) and
+breaks deadlocks caused by bilateral symmetry, but actively harms
+performance in concave trap geometries by reinforcing path persistence
+when backtracking is required. This double-edged effect, to our
+knowledge, has not been systematically characterized in prior
+mapless-navigation literature.
+
+\subsection{Local Minima and Trap Escape}
+
+Classical reactive methods such as the Bug family of algorithms
+guarantee trap escape through deterministic wall-following but require
+explicit boundary-tracing logic. Within the learning-based literature,
+recent work addresses concave-obstacle failure through auxiliary
+mechanisms: hybrid potential-field and wall-following controllers
+require an explicit trap detector, while environment-prediction
+approaches rely on learned generative models of the surrounding
+geometry. In contrast, our approach requires no additional inference
+module at deployment time -- the trap-escape behavior is encoded
+entirely through the training-time reward and curriculum, leaving the
+network architecture and runtime inference cost unchanged from the
+baseline.
+
+\subsection{Model-Based Local Planning: NeuPAN}
+
+NeuPAN~\cite{han2025neupan} represents the current state of the art in
+model-based, real-time, map-free motion planning, directly mapping raw
+LiDAR points to control actions through a proximal alternating-
+minimization network without intermediate occupancy-grid construction.
+NeuPAN reports strong performance across corridor, parking-lot, and
+cluttered-sandbox benchmarks using robot platforms on the order of
+1.6\,m in length. We evaluate NeuPAN under two configurations against
+our structured benchmark: (1) its original robot geometry, and (2) a
+DUNE perception model retrained for TurtleBot3-scale dimensions
+(0.178$\times$0.138\,m). We find that even with correctly-matched
+robot parameters, NeuPAN's local optimization can become trapped in a
+persistent oscillatory local minimum near constrained multi-obstacle
+geometries -- a failure mode distinct from, and complementary to, its
+previously documented limitations with fast-moving dynamic obstacles.
+This suggests that constrained corridor navigation remains challenging
+for purely local, optimization-based planners regardless of parameter
+tuning, motivating the learning-based curriculum approach explored in
+this work.

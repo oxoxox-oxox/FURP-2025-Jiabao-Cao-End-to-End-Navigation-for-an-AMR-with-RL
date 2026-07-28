@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="780" viewBox="0 0 720 780">
+<rect width="100%" height="100%" fill="white"/>
+<text x="360.0" y="30" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#222">Exploration-policy failure: narrow door</text>
+<text x="360.0" y="55" font-family="Arial, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" fill="#444">collision, steps=60, return=-86.8</text>
+<line x1="70.0" y1="700.0" x2="70.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="128.0" y1="700.0" x2="128.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="186.0" y1="700.0" x2="186.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="244.0" y1="700.0" x2="244.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="302.0" y1="700.0" x2="302.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="360.0" y1="700.0" x2="360.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="418.0" y1="700.0" x2="418.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="476.0" y1="700.0" x2="476.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="534.0" y1="700.0" x2="534.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="592.0" y1="700.0" x2="592.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="650.0" y1="700.0" x2="650.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="700.0" x2="650.0" y2="700.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="642.0" x2="650.0" y2="642.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="584.0" x2="650.0" y2="584.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="526.0" x2="650.0" y2="526.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="468.0" x2="650.0" y2="468.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="410.0" x2="650.0" y2="410.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="352.0" x2="650.0" y2="352.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="294.0" x2="650.0" y2="294.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="236.0" x2="650.0" y2="236.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="178.0" x2="650.0" y2="178.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="120.0" x2="650.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<polyline points="360.0,630.0 360.0,369.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="360.0,311.0 360.0,50.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="70.0,630.0 650.0,630.0 650.0,50.0 70.0,50.0 70.0,630.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="186.0,410.0 194.7,410.0 203.0,407.4 210.2,402.5 215.7,395.8 219.1,388.3 220.7,379.8 220.0,371.1 216.9,363.0 211.9,355.8 208.3,347.9 207.1,339.3 206.1,330.7 204.0,322.2 200.9,314.1 198.7,305.8 198.2,297.2 198.6,289.2 199.3,281.8 200.0,275.3 200.9,269.3 201.8,264.1 202.9,258.5 203.9,253.6 204.8,248.3 205.5,243.7 206.1,238.7 207.0,234.5 208.4,229.4 210.5,225.7 213.5,221.8 217.2,218.9 223.3,216.5 228.3,216.1 236.9,217.8 244.6,221.8 250.8,227.9 254.8,234.9 257.5,243.1 261.5,250.4 265.8,257.5 268.8,265.5 272.1,273.4 276.2,280.9 279.0,289.1 281.4,297.5 283.9,305.8 287.4,313.7 290.7,321.8 294.2,329.7 297.0,338.0 299.5,346.3 302.7,354.4 307.2,361.8 313.1,368.0 319.8,373.2 327.0,377.6 334.3,381.2 341.8,385.0 350.0,387.8" fill="none" stroke="#277da1" stroke-width="4.0" stroke-opacity="1.0" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="186.0" cy="410.0" r="7" fill="#43aa8b" stroke="white" stroke-width="2"/>
+<polygon points="534.0,400.0 543.0,418.0 525.0,418.0" fill="#f94144" stroke="white" stroke-width="1.5"/>
+<circle cx="95" cy="742" r="6" fill="#43aa8b"/>
+<text x="112" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#222">start</text>
+<polygon points="180,734 188,749 172,749" fill="#f94144"/>
+<text x="198" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#222">goal</text>
+<line x1="270" y1="742" x2="310" y2="742" stroke="#277da1" stroke-width="4"/>
+<text x="318" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#222">precision / trajectory</text>
+</svg>

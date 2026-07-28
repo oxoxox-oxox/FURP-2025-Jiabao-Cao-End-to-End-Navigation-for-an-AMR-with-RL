@@ -1,0 +1,48 @@
+neupan_node:
+  ros__parameters:
+    # Robot identification
+    robot_type: 'limo'
+    robot_description: 'LIMO differential drive robot'
+
+    # Configuration file paths (relative to robot directory)
+    planner_config_file: 'planner.yaml'
+    dune_checkpoint_file: 'models/dune_model_5000.pth'
+
+    # TF Frame configuration
+    map_frame: 'odom'             # TurtleBot3: no SLAM, use odom as global frame
+    base_frame: 'base_footprint'
+    lidar_frame: 'base_scan'
+
+    # ============ [DELAY-COMP] 新增两个参数 ============
+    use_delay_compensation: true   # ← A/B对比开关: true=补偿 false=原版NeuPAN
+    odom_topic: '/odom'            # 速度反馈来源
+
+    # Visualization
+    enable_visualization: true
+    enable_dune_markers: true
+    enable_nrmp_markers: true
+    enable_robot_marker: true
+    marker_size: 0.05
+    marker_z: 1.0
+
+    # Scan processing
+    scan_angle_max: 3.14
+    scan_angle_min: -3.14
+    scan_downsample: 1
+    scan_range_max: 5.0
+    scan_range_min: 0.15
+    flip_angle: false
+    refresh_initial_path: true
+    include_initial_path_direction: false
+
+    # ⚠️ 控制频率建议从20降到5:
+    #   NeuPAN在OrangePi求解约200-400ms > 20Hz周期(50ms), 每个周期都会overrun,
+    #   周期对齐失效。5Hz(200ms)才可能让solve落在周期内。
+    #   同时planner.yaml的step_time应=1/control_frequency=0.2 (当前已是0.2, 匹配)
+    control_frequency: 5.0
+
+    # Topic Configuration
+    cmd_vel_topic: '/neupan_cmd_vel'
+    scan_topic: '/scan'
+    plan_input_topic: '/plan'
+    goal_topic: '/goal_pose'

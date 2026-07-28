@@ -1,0 +1,41 @@
+neupan_node:
+  ros__parameters:
+    # Robot identification
+    robot_type: 'limo' 
+    robot_description: 'LIMO differential drive robot'
+
+    # Configuration file paths (relative to robot directory)
+    planner_config_file: 'planner.yaml'
+    dune_checkpoint_file: 'models/dune_model_5000.pth'
+
+    # TF Frame configuration
+    map_frame: 'odom'             # TurtleBot3: no SLAM running, use odom as global frame
+    base_frame: 'base_footprint'  # TurtleBot3 URDF base frame
+    lidar_frame: 'base_scan'      # TurtleBot3 URDF lidar link (RPLIDAR publishes here)
+
+    # Visualization control
+    enable_visualization: true   # Master switch for all visualization
+    enable_dune_markers: true    # Enable DUNE point cloud markers
+    enable_nrmp_markers: true    # Enable NRMP point cloud markers
+    enable_robot_marker: true    # Enable robot footprint marker
+    marker_size: 0.05
+    marker_z: 1.0
+
+    # Scan processing
+    scan_angle_max: 3.14
+    scan_angle_min: -3.14
+    scan_downsample: 1      # 2->1, 使用全部激光点，提高墙体/障碍物检测精度，减少撞墙
+    scan_range_max: 5.0     # 3.0->5.0, 增大扫描范围，更早发现墙体提前避障
+    scan_range_min: 0.15 # 盲区
+    flip_angle: false
+    refresh_initial_path: true
+    include_initial_path_direction: false
+    control_frequency: 20.0  # 2.0->10.0, 大幅提高控制频率，机器人反应更快
+
+    # ========== Topic Configuration (Optional) ==========
+    # Uncomment and modify to customize topic names for your robot
+    cmd_vel_topic: '/neupan_cmd_vel'
+    scan_topic: '/scan'
+    plan_input_topic: '/plan'
+    goal_topic: '/goal_pose'
+

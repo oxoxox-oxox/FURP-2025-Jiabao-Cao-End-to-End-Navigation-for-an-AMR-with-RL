@@ -1,0 +1,143 @@
+\section{Experiments}
+\label{sec:results}
+
+\subsection{Setup}
+
+All models are trained and evaluated in IR-SIM, a lightweight 2D
+simulator also used by NeuPAN's original benchmarks, ensuring our
+LiDAR-based comparison uses an identical sensing modality and
+collision model. The robot is modeled as a differential-drive disk
+of radius 0.2\,m (approximating TurtleBot3 Burger). Training uses
+60--80 epochs of 70 episodes each (300-step cap), Adam optimizer,
+batch size 64, on an RTX 5060 GPU. For real-world validation, the
+trained policy is deployed without fine-tuning on a TurtleBot3 Burger
+equipped with an RPLIDAR C1 and an Orange Pi 5 Pro for on-board
+inference.
+
+\subsection{Hard Scenario Benchmark}
+
+To expose failure modes invisible to standard randomized-obstacle
+evaluation, we construct four structured scenarios: \textbf{S1
+U-trap} (agent inside a concave enclosure, goal behind the opening),
+\textbf{S2 Double-U} (two sequential concave traps), \textbf{S3
+Narrow-door} (0.45\,m gap, requiring precise alignment), and
+\textbf{S5 Symmetric-corridor} (bilaterally symmetric walls inducing
+identical left/right LiDAR returns). Each scenario is tested with 4
+initial headings $\times$ 3 repetitions (12 trials), using fixed
+obstacle layouts to isolate policy capability from environment
+randomness.
+
+\subsection{Main Results}
+
+\begin{table}[t]
+\centering
+\caption{Success rate (\%) across standard generalization
+(N=50 trials, fixed seed) and four structured hard scenarios.}
+\label{tab:main}
+\begin{tabular}{lccccc}
+\toprule
+Method & Gen. & S1 & S2 & S3 & S5 \\
+\midrule
+CNNTD3            & 80 & 0   & 100 & 100 & 100 \\
+RCPG (GRU)        & 88 & 0   & 0   & 75  & 100 \\
+CNNTD3-v2         & 86 & 0   & 100 & 100 & 100 \\
+CNNTD3-v3         & 86 & 0   & 75  & 100 & 83  \\
+\textbf{CNNTD3-Improved} & 78 & \textbf{100} & 100 & 0 & 100 \\
+NeuPAN~\cite{han2025neupan} & 0  & 0   & 0   & 0   & 0   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:main} reports results on a 50-trial generalization
+test with fixed random seeds and the four hard scenarios. CNNTD3-
+Improved is the only method achieving non-zero success on S1 U-trap
+(100\%), while all other variants -- including the unmodified
+baseline -- fail completely (0\%), confirming that escaping concave
+traps requires the targeted curriculum and exploration reward rather
+than emerging naturally from standard training. Generalization scores
+across variants are statistically overlapping
+(78--88\%, individual 95\% confidence intervals span 10--12 points),
+indicating that the curriculum modification does not significantly
+degrade standard-environment performance despite the architectural
+and reward changes.
+
+GRU-based memory (RCPG) shows the inverse pattern: it achieves the
+highest generalization score (88\%) and strong narrow-door performance
+(75\%) but fails entirely on S2 Double-U (0\%), where path persistence
+induced by temporal memory prevents the backtracking required to
+escape the second trap. This double-edged effect -- beneficial for
+precision tasks, harmful for traps requiring reversal -- is consistent
+across all tested scenarios and suggests memory augmentation is not a
+general-purpose solution for structured navigation failures.
+
+NeuPAN fails across all five evaluation settings (0\% in every
+scenario), including the standard environment using its original
+1.6$\times$2.0\,m configuration matched to our scene layout. Diagnostic
+analysis (Section~\ref{sec:neupan-analysis}) confirms this is due to
+its conservative \texttt{collision\_threshold} mechanism halting motion
+when the minimum obstacle distance falls below a fixed bound --
+triggered almost immediately given the obstacle density in our
+benchmark scenes.
+
+\subsection{Ablation: Exploration Reward Magnitude}
+
+\begin{table}[t]
+\centering
+\caption{Ablation over exploration reward strength and curriculum
+schedule, all evaluated on S1 U-trap.}
+\label{tab:ablation}
+\begin{tabular}{lcccc}
+\toprule
+Variant & Explore. bonus & Curr. start & S1 SR & Gen. SR \\
+\midrule
+CNNTD3 (no curr.) & --   & --       & 0   & 80 \\
+CNNTD3-v3          & 0.10 & epoch 20 & 0   & 86 \\
+CNNTD3-v2          & 0.15 & epoch 20 & 0   & 86 \\
+\textbf{Improved}  & \textbf{0.30} & epoch 10 & \textbf{100} & 78 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:ablation} isolates the effect of exploration reward
+magnitude. Weaker settings (0.10--0.15) fail to escape U-trap despite
+otherwise similar curriculum schedules, while only the strongest
+setting (0.30, paired with an earlier curriculum onset at epoch 10)
+succeeds. This is not a smooth trade-off curve: intermediate values
+produce intermediate generalization cost (78--86\%) but \emph{zero}
+intermediate trap-escape benefit, suggesting a threshold effect rather
+than a continuous dial between the two objectives. We interpret this
+as evidence that escaping a concave trap requires sufficiently strong
+anti-stagnation pressure to overcome the locally-optimal "approach and
+collide" policy that the base reward otherwise favors near a wall.
+
+\subsection{NeuPAN Failure Analysis}
+\label{sec:neupan-analysis}
+
+To rule out robot-size mismatch as the sole cause of NeuPAN's failure,
+we retrain its DUNE perception module with TurtleBot3 Burger dimensions
+(0.178$\times$0.138\,m, 5000 training epochs) and re-evaluate on a
+20\,m corridor scenario with two perpendicular obstacles. With matched
+robot geometry, NeuPAN no longer triggers its immediate safety-stop;
+instead, it enters a \emph{persistent oscillatory local minimum}
+approximately 7.7\,m into the corridor. Across three independent
+repeated trials, the robot converges to nearly identical terminal
+positions (7.75--7.77\,m, $<$0.02\,m variance), with the last 100
+steps showing position standard deviation of 0.013--0.017\,m and
+velocity sign reversals in 53--60\% of consecutive steps, while
+\texttt{min\_distance} remains well above the 0.05\,m collision
+threshold throughout (0.9--1.0\,m). This rules out the safety-stop
+mechanism as the cause and instead indicates a genuine failure of the
+underlying MPC optimization to converge to a stable forward-moving
+solution at this obstacle geometry -- a limitation independent of
+parameter tuning, and to our knowledge not previously reported for
+NeuPAN in constrained corridor settings.
+
+\subsection{Inference Efficiency}
+
+The CNNTD3 policy (TorchScript, CPU) runs at 0.15\,ms per inference
+step on a desktop CPU and 1.65\,ms on the Orange Pi 5 Pro ARM
+processor used for on-board deployment -- well within the 100\,ms
+budget required for 10\,Hz control. NeuPAN requires 5.3\,ms per step
+under comparable conditions, making our policy approximately 3$\times$
+faster on edge hardware despite NeuPAN's substantially higher failure
+rate in our benchmark.

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="780" viewBox="0 0 720 780">
+<rect width="100%" height="100%" fill="white"/>
+<text x="360.0" y="30" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#222">STPS success: Double-U</text>
+<text x="360.0" y="55" font-family="Arial, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" fill="#444">goal, steps=26, return=108.3, switches=0</text>
+<line x1="70.0" y1="700.0" x2="70.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="128.0" y1="700.0" x2="128.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="186.0" y1="700.0" x2="186.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="244.0" y1="700.0" x2="244.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="302.0" y1="700.0" x2="302.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="360.0" y1="700.0" x2="360.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="418.0" y1="700.0" x2="418.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="476.0" y1="700.0" x2="476.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="534.0" y1="700.0" x2="534.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="592.0" y1="700.0" x2="592.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="650.0" y1="700.0" x2="650.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="700.0" x2="650.0" y2="700.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="642.0" x2="650.0" y2="642.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="584.0" x2="650.0" y2="584.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="526.0" x2="650.0" y2="526.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="468.0" x2="650.0" y2="468.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="410.0" x2="650.0" y2="410.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="352.0" x2="650.0" y2="352.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="294.0" x2="650.0" y2="294.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="236.0" x2="650.0" y2="236.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="178.0" x2="650.0" y2="178.0" stroke="#d5dae0" stroke-width="0.6"/>
+<line x1="70.0" y1="120.0" x2="650.0" y2="120.0" stroke="#d5dae0" stroke-width="0.6"/>
+<polyline points="244.0,79.0 476.0,79.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="244.0,311.0 476.0,311.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="476.0,311.0 476.0,79.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="244.0,369.0 476.0,369.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="244.0,601.0 476.0,601.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="476.0,601.0 476.0,369.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="70.0,630.0 650.0,630.0 650.0,50.0 70.0,50.0 70.0,630.0" fill="none" stroke="#515760" stroke-width="1.5"/>
+<polyline points="360.0,410.0 368.0,410.0 376.6,409.4 385.0,410.0 393.4,412.2 402.1,412.0 410.8,412.7 419.4,413.8 428.1,414.1 436.8,414.4 445.5,414.2 454.2,413.8 462.9,413.7 471.6,413.8 480.2,414.8 488.9,414.3 497.2,411.6 505.8,410.3 514.4,409.8 523.0,408.1 531.5,406.3 540.2,405.9 548.8,404.9 557.4,403.7 566.1,403.9 574.8,404.7" fill="none" stroke="#2f4858" stroke-width="1.5" stroke-opacity="0.35" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="360.0,410.0 368.0,410.0 376.6,409.4 385.0,410.0 393.4,412.2 402.1,412.0 410.8,412.7 419.4,413.8 428.1,414.1 436.8,414.4 445.5,414.2 454.2,413.8 462.9,413.7 471.6,413.8 480.2,414.8 488.9,414.3 497.2,411.6 505.8,410.3 514.4,409.8 523.0,408.1 531.5,406.3 540.2,405.9 548.8,404.9 557.4,403.7 566.1,403.9 574.8,404.7" fill="none" stroke="#277da1" stroke-width="4.0" stroke-opacity="1.0" stroke-linejoin="round" stroke-linecap="round"/>
+
+<circle cx="360.0" cy="410.0" r="7" fill="#43aa8b" stroke="white" stroke-width="2"/>
+<polygon points="592.0,400.0 601.0,418.0 583.0,418.0" fill="#f94144" stroke="white" stroke-width="1.5"/>
+<circle cx="95" cy="742" r="6" fill="#43aa8b"/>
+<text x="112" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#222">start</text>
+<polygon points="180,734 188,749 172,749" fill="#f94144"/>
+<text x="198" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#222">goal</text>
+<line x1="270" y1="742" x2="310" y2="742" stroke="#277da1" stroke-width="4"/>
+<text x="318" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#222">precision / trajectory</text>
+<line x1="485" y1="742" x2="525" y2="742" stroke="#f3722c" stroke-width="4"/>
+<text x="533" y="747" font-family="Arial, sans-serif" font-size="12" font-weight="normal" text-anchor="start" fill="#222">escape</text>
+</svg>

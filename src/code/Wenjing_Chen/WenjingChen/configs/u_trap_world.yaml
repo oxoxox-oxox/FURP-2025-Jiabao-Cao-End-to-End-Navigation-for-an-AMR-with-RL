@@ -1,0 +1,56 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.3
+  sample_time: 0.3
+  collision_mode: 'reactive'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    vel_min: [0, -1.0]
+    vel_max: [1.0, 1.0]
+    # agent 在 U 形凹槽内部，面朝右（heading=0）
+    state: [2.5, 5, 0, 0]
+    # goal 在开口外侧，远离墙壁
+    goal: [8.0, 5.0, 0]
+    arrive_mode: position
+    goal_threshold: 0.3
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 7
+        angle_range: 3.14159   # 180度半圆扫描
+        number: 180
+        noise: True
+        std: 0.08
+        angle_std: 0.1
+        offset: [0, 0, 0]
+        alpha: 0.3
+    plot:
+      show_trajectory: True
+
+obstacle:
+  # ---- U 形三面墙 ----
+  # 左墙（封堵底部）: 竖直方向，中心在 (2, 5)，长6（y方向）宽0.3（x方向）
+  # 注意 IR-SIM rectangle: length=x方向, width=y方向, angle=0 时
+  # 若要竖墙需旋转 90度 = 1.5708 rad，或直接用 length/width 互换
+  - shape: {name: 'rectangle', length: 0.3, width: 6.0}
+    state: [2.0, 5.0, 0]
+    kinematics: {name: 'static'}
+
+  # 上墙: 水平方向，从左墙右侧延伸到右侧开口
+  # 中心在 (4.85, 7)，length=5.7（x方向），width=0.3（y方向）
+  - shape: {name: 'rectangle', length: 5.7, width: 0.3}
+    state: [4.85, 7.0, 0]
+    kinematics: {name: 'static'}
+
+  # 下墙: 水平方向，镜像于上墙
+  - shape: {name: 'rectangle', length: 5.7, width: 0.3}
+    state: [4.85, 3.0, 0]
+    kinematics: {name: 'static'}
+
+  # ---- 世界边界 ----
+  - shape: {name: 'linestring', vertices: [[0,0],[10,0],[10,10],[0,10],[0,0]]}
+    kinematics: {name: 'static'}
+    state: [0, 0, 0]
