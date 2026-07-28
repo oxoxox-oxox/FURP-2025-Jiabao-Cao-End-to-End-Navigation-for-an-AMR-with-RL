@@ -3,27 +3,9 @@
 > **Faculty Undergraduate Research Practice (FURP)**
 > Undergraduate Research Group · Faculty of Science and Engineering · University of Nottingham Ningbo China
 
-This is your project home for the FURP programme. **Fork this template**, rename your repo, fill in the content each week, and share it with us (or make it public) so we can follow your progress and review your weekly work.
-
 ---
 
-## Getting started (do this in Week 1)
-
-1. **Fork / use this template** to create your own repository.
-2. **Rename your repo** following the naming convention:
-
-   ```
-   FURP-2025/YourName-ProjectTag
-   # e.g. furp-2025/Jason-ROSBootcamp
-   ```
-   
-3. **Give us access:** either make the repo **public**, or **share it** with the research group accounts (ask your project lead for the usernames to add as collaborators).
-4. **Fill in this README** — replace the placeholders in the *Project Info* section below.
-5. **Start your weekly log** in [`docs/00_weekly.md`](docs/00_weekly.md).
-
----
-
-## Project Info — *fill this in*
+## Project Info
 
 | Field | Your entry |
 |---|---|
