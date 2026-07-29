@@ -1,9 +1,9 @@
-from robot_nav.models.cnntd3 import CNNTD3
+from robot_nav.models.CNNTD3.CNNTD3 import CNNTD3
 
 import torch
 import numpy as np
-from robot_nav.sim.sim import SIM
-from robot_nav.utils import get_buffer
+from robot_nav.SIM_ENV.sim import SIM
+from utils import get_buffer
 
 
 def main(args=None):
@@ -42,7 +42,7 @@ def main(args=None):
     )  # instantiate a model
 
     sim = SIM(
-        world_file="robot_nav/worlds/robot_world.yaml", disable_plotting=False
+        world_file="worlds/robot_world.yaml", disable_plotting=False
     )  # instantiate environment
     replay_buffer = get_buffer(
         model,
