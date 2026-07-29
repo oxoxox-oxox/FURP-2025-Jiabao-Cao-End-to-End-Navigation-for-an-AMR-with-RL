@@ -1,12 +1,12 @@
-from robot_nav.models.RCPG.RCPG import RCPG
+from robot_nav.models.rcpg import RCPG
 from collections import deque
 
 import torch
 import numpy as np
 
 
-from robot_nav.SIM_ENV.sim import SIM
-from utils import get_buffer
+from robot_nav.sim.sim import SIM
+from robot_nav.utils import get_buffer
 
 
 def main(args=None):

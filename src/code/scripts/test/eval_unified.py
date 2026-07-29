@@ -5,7 +5,7 @@
 import sys, os, numpy as np, torch, json, time
 from collections import deque
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, BASE_DIR)
 os.chdir(BASE_DIR)
 
@@ -139,33 +139,26 @@ def run_stps_v2(m_main, m_esc, world, robot_state, robot_goal, max_steps):
 
 
 # ===== 加载模型 =====
-ckpt_robot = 'robot_nav/models/CNNTD3/checkpoint'
-ckpt_model = 'models/CNNTD3/checkpoint'
+ckpt = 'robot_nav/models/CNNTD3/checkpoint'
 
 # CNNTD3 原始baseline
 m_baseline = CNNTD3(state_dim=185, action_dim=2, max_action=1,
                     device=device, load_model=False, model_name="cmp_base")
-try:
-    m_baseline.load("CNNTD3", ckpt_model)
-except:
-    m_baseline.load("CNNTD3", ckpt_robot)
+m_baseline.load("CNNTD3", ckpt)
 m_baseline.actor.eval()
 print("✅ CNNTD3 baseline")
 
 # v7 precision (for STPS)
 m_v7 = CNNTD3(state_dim=185, action_dim=2, max_action=1,
               device=device, load_model=False, model_name="cmp_v7")
-m_v7.load("CNNTD3_v7_finetune_best", ckpt_model)
+m_v7.load("CNNTD3_v7_finetune_best", ckpt)
 m_v7.actor.eval()
 print("✅ v7 precision")
 
 # improved exploration (for STPS)
 m_imp = CNNTD3(state_dim=185, action_dim=2, max_action=1,
                device=device, load_model=False, model_name="cmp_imp")
-try:
-    m_imp.load("CNNTD3_improved", ckpt_model)
-except:
-    m_imp.load("CNNTD3_improved", ckpt_robot)
+m_imp.load("CNNTD3_improved", ckpt)
 m_imp.actor.eval()
 print("✅ improved exploration")
 

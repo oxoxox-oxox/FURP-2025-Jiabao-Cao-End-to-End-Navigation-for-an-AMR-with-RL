@@ -3,9 +3,9 @@ from tqdm import tqdm
 import yaml
 import torch
 
-from robot_nav.models.RCPG.RCPG import RCPG
+from robot_nav.models.rcpg import RCPG
 from robot_nav.replay_buffer import ReplayBuffer, RolloutReplayBuffer
-from robot_nav.models.PPO.PPO import PPO
+from robot_nav.models.ppo import PPO
 
 
 class Pretraining:

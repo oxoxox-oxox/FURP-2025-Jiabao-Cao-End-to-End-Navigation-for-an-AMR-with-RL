@@ -1,0 +1,45 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.3
+  sample_time: 0.3
+  collision_mode: 'reactive'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    vel_min: [0, -1.0]
+    vel_max: [1.0, 1.0]
+    state: [2, 5, 0, 0]
+    goal: [8, 5, 0]
+    arrive_mode: position
+    goal_threshold: 0.3
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 7
+        angle_range: 3.14
+        number: 180
+        noise: True
+        std: 0.08
+        angle_std: 0.1
+        offset: [0, 0, 0]
+        alpha: 0.3
+    plot:
+      show_trajectory: True
+
+obstacle:
+  # U形墙 - 机器人从左往右，目标在右边，但U形墙挡路
+  - shape: {name: 'rectangle', length: 3.0, width: 0.3}
+    state: [6, 6.5, 0]
+    kinematics: {name: 'static'}
+  - shape: {name: 'rectangle', length: 3.0, width: 0.3}
+    state: [6, 3.5, 0]
+    kinematics: {name: 'static'}
+  - shape: {name: 'rectangle', length: 0.3, width: 3.3}
+    state: [7.6, 5, 0]
+    kinematics: {name: 'static'}
+  # 边界
+  - shape: {name: 'linestring', vertices: [[0,0],[10,0],[10,10],[0,10],[0,0]]}
+    kinematics: {name: 'static'}
+    state: [0, 0, 0]

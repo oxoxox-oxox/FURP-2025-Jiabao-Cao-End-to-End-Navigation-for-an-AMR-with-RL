@@ -3,7 +3,7 @@ v7_finetune: 加载v5_combined_v2_best，探索奖励从0.5线性降到0
 只跑30 epoch，约4小时
 """
 import sys, os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, BASE_DIR)
 os.chdir(BASE_DIR)
 
@@ -99,15 +99,14 @@ def main():
                    "robot_nav/worlds/u_shape_world.yaml",
                    "robot_nav/worlds/u_shape_hard_world.yaml"]
 
-    # 创建模型并加载 v5 best checkpoint
+    # 创建模型并加载 v6 improved_best checkpoint 作为起点
     model = CNNTD3(state_dim=state_dim, action_dim=action_dim, max_action=max_action,
                    device=device, save_every=save_every, load_model=False,
                    model_name="CNNTD3_v7_finetune")
 
-    # 加载已训练好的权重
-    ckpt_dir = "models/CNNTD3/checkpoint"
-    model.load("CNNTD3_v5_combined_v2_best", ckpt_dir)
-    print(f"✅ Loaded v5_combined_v2_best from {ckpt_dir}")
+    ckpt_dir = "robot_nav/models/CNNTD3/checkpoint"
+    model.load("CNNTD3_improved_best", ckpt_dir)
+    print(f"✅ Loaded improved_best from {ckpt_dir}")
 
     current_world = STANDARD_WORLD
     sim = SIM(world_file=current_world, disable_plotting=True)

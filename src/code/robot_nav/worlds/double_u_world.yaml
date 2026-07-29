@@ -1,0 +1,69 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.3
+  sample_time: 0.3
+  collision_mode: 'reactive'
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    vel_min: [0, -1.0]
+    vel_max: [1.0, 1.0]
+    # agent在左侧，必须穿过两个U形中间的通道
+    state: [1.5, 5.0, 0, 0]
+    goal: [9.0, 5.0, 0]
+    arrive_mode: position
+    goal_threshold: 0.3
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 7
+        angle_range: 3.14
+        number: 180
+        noise: True
+        std: 0.08
+        angle_std: 0.1
+        offset: [0, 0, 0]
+        alpha: 0.3
+    plot:
+      show_trajectory: True
+obstacle:
+  # 结构：两个开口朝左的U形，开口对着agent
+  # agent必须识别出中间的通道(y=4.5~5.5)，不能误入上下U形
+  #
+  #      ┌──────┐         goal
+  # y=10 │上U形 │
+  #      │      │ ← 开口朝左(y=6~10)
+  # y=6  └──────┘
+  #               ← 中间通道(y=4.5~5.5) agent必须走这里
+  # y=4.5┌──────┐
+  #      │      │ ← 开口朝左(y=0~4.5)
+  # y=0  │下U形 │
+  #      └──────┘
+
+  # 上U形（开口朝左，y=5.5~9.5，x=3~7）
+  - shape: {name: 'linestring', vertices: [[3,9.5],[7,9.5]]}   # 上壁
+    kinematics: {name: 'static'}
+    state: [0,0,0]
+  - shape: {name: 'linestring', vertices: [[3,5.5],[7,5.5]]}   # 下壁
+    kinematics: {name: 'static'}
+    state: [0,0,0]
+  - shape: {name: 'linestring', vertices: [[7,5.5],[7,9.5]]}   # 封口（右壁）
+    kinematics: {name: 'static'}
+    state: [0,0,0]
+
+  # 下U形（开口朝左，y=0.5~4.5，x=3~7）
+  - shape: {name: 'linestring', vertices: [[3,4.5],[7,4.5]]}   # 上壁
+    kinematics: {name: 'static'}
+    state: [0,0,0]
+  - shape: {name: 'linestring', vertices: [[3,0.5],[7,0.5]]}   # 下壁
+    kinematics: {name: 'static'}
+    state: [0,0,0]
+  - shape: {name: 'linestring', vertices: [[7,0.5],[7,4.5]]}   # 封口（右壁）
+    kinematics: {name: 'static'}
+    state: [0,0,0]
+
+  # 世界边界
+  - shape: {name: 'linestring', vertices: [[0,0],[10,0],[10,10],[0,10],[0,0]]}
+    kinematics: {name: 'static'}
+    state: [0,0,0]

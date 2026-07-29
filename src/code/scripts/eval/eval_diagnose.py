@@ -6,7 +6,7 @@ STPS U-trap 诊断：
 """
 import sys, os, numpy as np, torch, json
 from collections import deque
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, BASE_DIR)
 os.chdir(BASE_DIR)
 
@@ -117,7 +117,7 @@ def run_single(model, cfg):
 
 
 # 加载模型
-ckpt = 'models/CNNTD3/checkpoint'
+ckpt = 'robot_nav/models/CNNTD3/checkpoint'
 m_v7 = CNNTD3(state_dim=185, action_dim=2, max_action=1,
               device=device, load_model=False, model_name="d_v7")
 m_v7.load("CNNTD3_v7_finetune_best", ckpt); m_v7.actor.eval()

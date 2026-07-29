@@ -5,7 +5,7 @@ STALL_WINDOW × STALL_DIST 的 3×3 网格
 """
 import sys, os, numpy as np, torch, json, itertools, time
 from collections import deque
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, BASE_DIR)
 os.chdir(BASE_DIR)
 
@@ -97,7 +97,7 @@ def run_episode(model_main, model_escape, world, robot_state, robot_goal,
 
 
 # 加载模型
-ckpt_dir = 'models/CNNTD3/checkpoint'
+ckpt_dir = 'robot_nav/models/CNNTD3/checkpoint'
 model_main = CNNTD3(state_dim=185, action_dim=2, max_action=1,
                     device=device, load_model=False, model_name="sens_main")
 model_main.load("CNNTD3_v7_finetune_best", ckpt_dir)

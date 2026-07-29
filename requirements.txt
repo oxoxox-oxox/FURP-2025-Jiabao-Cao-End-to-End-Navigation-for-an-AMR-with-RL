@@ -5,3 +5,4 @@ tensorboard
 matplotlib
 tqdm
 irsim
+torch-geometric

@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from robot_nav.models.MARL.marlTD3.marlTD3 import TD3
+from robot_nav.models.MARL.marltd3 import TD3
 
 import torch
 import numpy as np
-from robot_nav.SIM_ENV.marl_sim import MARL_SIM
-from utils import get_buffer
+from robot_nav.sim.marl_sim import MARL_SIM
+from robot_nav.utils import get_buffer
 
 
 def outside_of_bounds(poses):
@@ -55,7 +55,7 @@ def main(args=None):
 
     # ---- Instantiate simulation environment and model ----
     sim = MARL_SIM(
-        world_file="worlds/multi_robot_world.yaml",
+        world_file="robot_nav/worlds/multi_robot_world.yaml",
         disable_plotting=True,
         reward_phase=1,
     )  # instantiate environment

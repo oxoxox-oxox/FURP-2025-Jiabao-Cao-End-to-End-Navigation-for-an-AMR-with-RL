@@ -4,8 +4,8 @@ v6_anneal: 探索奖励退火版
 - anneal_start ~ max_epochs: 线性衰减到0（恢复标准性能）
 - 其余同 v5_combined_v2
 """
-import sys
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import sys, os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, BASE_DIR)
 os.chdir(BASE_DIR)
 from robot_nav.models.cnntd3 import CNNTD3
@@ -105,7 +105,7 @@ def main():
 
     model = CNNTD3(state_dim=state_dim, action_dim=action_dim, max_action=max_action,
                    device=device, save_every=save_every, load_model=False,
-                   model_name="CNNTD3_v6_anneal")
+                   model_name="CNNTD3_improved")
 
     current_world = STANDARD_WORLD
     sim = SIM(world_file=current_world, disable_plotting=True)
@@ -211,10 +211,10 @@ def main():
             model.writer.add_scalar("train/anneal_coeff", anneal_coeff, epoch)
 
             if epoch % save_every == 0:
-                model.save(f"CNNTD3_v6_anneal_epoch_{epoch}", "models/CNNTD3/checkpoint")
+                model.save(f"CNNTD3_improved_epoch_{epoch}", "robot_nav/models/CNNTD3/checkpoint")
             if sr > best_sr:
                 best_sr = sr
-                model.save("CNNTD3_v6_anneal_best", "models/CNNTD3/checkpoint")
+                model.save("CNNTD3_improved_best", "robot_nav/models/CNNTD3/checkpoint")
                 print(f"★ Best saved SR={sr:.0%}")
 
     print(f"Training finished. Best SR={best_sr:.0%}")
