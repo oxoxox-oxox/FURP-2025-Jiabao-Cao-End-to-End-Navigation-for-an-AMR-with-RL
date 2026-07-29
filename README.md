@@ -8,14 +8,14 @@
 ## Project Info
 
 | Field | Your entry |
-|---|---|
+| --- | --- |
 | Student name(s) | _Jiabao Cao_ |
 | Project title | End-to-End Navigation for an AMR with RL |
 | Project tag | _End-to-End Navigation_ |
 | Track | Research |
 | Supervising faculty | Tianxiang Cui |
 | Project lead | Jiabao Cao |
-| Team or individual | Jiabao Cao, Shengqin Jiang, Wenjing Chen |
+| Team or individual | Jiabao Cao, Shengqin Jiang, Wenjing Chen Zexian Xiong |
 | Cited paper being replicated | _title + link/DOI_ |
 
 **One-line summary:** Using reinforce learning to achieve end to end navigation.
@@ -51,7 +51,7 @@ To earn your FURP certificate, **all three** must be satisfied:
 
 > Miss any one of the three, and the certificate is not awarded this round.
 
-**Research Track — minimum for certification:** successful replication of a cited paper with at least **10% innovation** (reproduce the work *and* add something new).
+**Research Track — minimum for certification:** successful replication of a cited paper with at least **10% innovation** (reproduce the work _and_ add something new).
 
 ---
 
@@ -71,23 +71,12 @@ Consistent weekly engagement is the backbone of a successful FURP project — an
 
 Any **leave of absence** or **withdrawal** must be notified to us **by email** — a verbal or chat message is not sufficient.
 
-- **Leave:** email *before* the session where possible, state the date(s) and reason. Note that leave still counts against the >50% attendance rule.
+- **Leave:** email _before_ the session where possible, state the date(s) and reason. Note that leave still counts against the >50% attendance rule.
 - **Withdrawal:** email us to formally withdraw so we can free your project slot and update records.
-- **Switching tracks:** email the project lead with the subject *"Project Transfer Request"* and CC your supervising faculty member.
+- **Switching tracks:** email the project lead with the subject _"Project Transfer Request"_ and CC your supervising faculty member.
 
 > No email = no record. Always put leave and withdrawal in writing.
 
 ---
 
-## Quick checklist
-
-- [ ] Forked the template and renamed the repo (`FURP-2025/YourName-ProjectTag`)
-- [ ] Made the repo public **or** shared it with the research group
-- [ ] Filled in the *Project Info* table above
-- [ ] Started `docs/00_weekly.md`
-- [ ] Created my first file in `docs/meeting_notes/`
-- [ ] (By Showcase) Added `FURP_Showcase.pdf` to the repo root
-
----
-
-*Bridging the gap between classroom knowledge and cutting-edge research.*
+_Bridging the gap between classroom knowledge and cutting-edge research._
