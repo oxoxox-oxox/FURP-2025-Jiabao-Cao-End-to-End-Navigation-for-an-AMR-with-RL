@@ -7,16 +7,16 @@
 
 ## Project Info
 
-| Field | Your entry |
-| --- | --- |
-| Student name(s) | _Jiabao Cao_ |
-| Project title | End-to-End Navigation for an AMR with RL |
-| Project tag | _End-to-End Navigation_ |
-| Track | Research |
-| Supervising faculty | Tianxiang Cui |
-| Project lead | Jiabao Cao |
-| Team or individual | Jiabao Cao, Shengqin Jiang, Wenjing Chen Zexian Xiong |
-| Cited paper being replicated | _title + link/DOI_ |
+| Field                        | Your entry                                            |
+| ---------------------------- | ----------------------------------------------------- |
+| Student name(s)              | _Jiabao Cao_                                        |
+| Project title                | End-to-End Navigation for an AMR with RL              |
+| Project tag                  | _End-to-End Navigation_                             |
+| Track                        | Research                                              |
+| Supervising faculty          | Tianxiang Cui                                         |
+| Project lead                 | Jiabao Cao                                            |
+| Team or individual           | Jiabao Cao, Shengqin Jiang, Wenjing Chen Zexian Xiong |
+| Cited paper being replicated | _title + link/DOI_                                  |
 
 **One-line summary:** Using reinforce learning to achieve end to end navigation.
 
@@ -53,19 +53,10 @@ To earn your FURP certificate, **all three** must be satisfied:
 
 **Research Track — minimum for certification:** successful replication of a cited paper with at least **10% innovation** (reproduce the work _and_ add something new).
 
----
-
-## Weekly cadence
-
-Every week, you should:
-
-- ✅ Update [`docs/00_weekly.md`](docs/00_weekly.md)
-- ✅ Log meeting notes in [`docs/meeting_notes/`](docs/meeting_notes/)
-- ✅ Attend the weekly meeting (online or in person)
-
-Consistent weekly engagement is the backbone of a successful FURP project — and it feeds directly into your attendance (Rule 1).
 
 ---
+
+
 
 ## Leave & withdrawal
 
