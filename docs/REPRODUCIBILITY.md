@@ -42,6 +42,15 @@ Windows and Linux verification outcomes are recorded in [VALIDATION.md](VALIDATI
 
 Windows/Linux 验证结果见记录，不据此声称 macOS、CUDA 训练或实机兼容。
 
+If the PyTorch index download stalls on **64-bit Windows with Python 3.12**, install the same official CPU wheel directly, then resume the pinned install. This changes only the download route, not the required version:
+
+如果 **64 位 Windows、Python 3.12** 访问 PyTorch 索引下载端点缓慢，可直接安装相同版本的官方 CPU wheel 后继续固定依赖安装，仅改变下载路径：
+
+```sh
+python -m pip install "https://download.pytorch.org/whl/cpu/torch-2.8.0%2Bcpu-cp312-cp312-win_amd64.whl?full=1"
+python -m pip install -r requirements.txt
+```
+
 ## Expected outputs / 成功判断
 
 `summarize_results.py` prints hard-scenario success rates 67.36% (baseline), 0.00% (archived NeuPAN configuration), 93.75% (STPS v2). It validates three finite rates in [0,1] for each scenario and checks stored means/population standard deviations to their three-decimal precision. Invalid summaries return a nonzero exit status. Exact mean improvement is 26.3889 percentage points; independently rounded poster averages differ by 27 points.
@@ -98,7 +107,7 @@ The original evaluator uses seeds `[42,123,2026]` for start perturbations only: 
 ## Data and reporting caveats / 数据与报告限制
 
 - World YAMLs are the authoritative scene definitions: 10×10, step time 0.3 s, 180-beam noisy LiDAR, 0.3 m goal threshold in the four benchmark scenes. V2 uses an initial escape duration 120 steps, then up to 240 on repeated switches, with a 3× escape-time fallback. / 以 YAML 为准，重复切换及超时以原 v2 代码为准。
-- `src/code/robot_nav/assets/data.yml` is the existing 44,054,082-byte offline experience file, versioned at baseline `6b8eee5` with Git blob `1a4eee1fd98bdc9c11b756681ba0c39bb3c965e5`. It is retained unchanged, not required by quick start, and has no separately documented collection/license metadata. Do not infer permission to reuse it from public visibility. / 该离线经验文件以基线提交和 Git 对象标识版本，保留原样，快速开始不读取；缺少独立采集/许可元信息，公开不代表允许复用。
+- `src/code/robot_nav/assets/data.yml` is the existing offline experience file, versioned at baseline `6b8eee5` with Git blob `1a4eee1fd98bdc9c11b756681ba0c39bb3c965e5` (42,154,272 bytes in Git; 44,054,082 in the Windows CRLF checkout). It is retained unchanged, not required by quick start, and has no separately documented collection/license metadata. Do not infer permission to reuse it from public visibility. / Git 中为 42,154,272 字节，Windows 换行转换后检出文件为 44,054,082 字节；以提交和 Git 对象标识版本，保留原样，快速开始不读取。缺少独立采集/许可元信息，公开不代表允许复用。
 - Archived JSONs store per-seed success rates, not full trajectories, collision counts, timing traces or every raw episode. Standard-environment 88%/87% comes from the final table; those raw 100-episode records are absent. / JSON 不含完整回合与计时轨迹，标准环境成绩仅有表格记录。
 - The v3 summary matches v2 on the four scenarios; it does not establish a gain. The standalone sensitivity script uses a 60-step escape duration, unlike unified v2's 120-step initial duration. Poster curves and sensitivity claims lack complete raw logs. / v3 未显示提升；敏感性设置不同，曲线与参数结论缺少完整原始记录。
 - NeuPAN's archived 0% is a compact-scene/configuration result; its runner is not included in the unified v2 evaluator. Historical Isaac, Habitat, ROS2 and delay-compensation notes do not establish current reproducibility or hardware safety. / 不将 NeuPAN 配置失败泛化，不将历史笔记当成本次实机证据。

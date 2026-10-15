@@ -28,3 +28,14 @@ Execution and publication outcomes are appended only after they are observed. / 
 - Scanned 744 original Git history objects for common private-key/token patterns, with no pattern hits. This bounded scan does not prove absence of every possible secret format. Credentials were not added. / 常见凭据模式扫描无命中，但不宣称覆盖所有秘密格式，未新增凭据。
 
 Logs are excluded under `artifacts/` or `*.log`. Expected nonfatal simulator warnings concern four-to-three state truncation and unavailable optional keyboard input. The model check also emits a PyTorch tensor-construction performance warning; it does not affect assertions or core code. / 日志排除上传，已观察到的非致命警告不影响验证结论。
+
+## Published and clean-clone verification / 发布与干净副本验证
+
+- Implementation commit `0a683521b3817b5766dc9b139996e82372f163a8` was pushed directly to the original public repository's `master` branch, as authorized. Its history remains intact; no force push or unrelated repository update was performed. / 实现整理提交已直接推送原公开仓库 master，未改写历史或更新无关仓库。
+- [CI run 38751100396](https://github.com/oxoxox-oxox/FURP-2025-Jiabao-Cao-End-to-End-Navigation-for-an-AMR-with-RL/actions/runs/38751100396) completed successfully on both Windows and Ubuntu with Python 3.12. Each job installed the lock, ran dependency checks and completed all seven tests, the four-scene STPS smoke check and the original CPU model check. / Windows/Ubuntu 云端完整验证均通过。
+- A new remote clone and a separate new virtual environment passed the same full verification and `pip check`. The default PyTorch download endpoint was slow on the local connection; the documented direct official CPU wheel fallback installed the same locked version, then `requirements.txt` installed the remaining dependencies. No packages were borrowed from the original project environment. / 远程克隆使用全新环境独立验证通过；本机采用已记录的官方直链回退安装相同版本，再安装其余固定依赖，未借用原项目环境的包。
+- GitHub-rendered HTML for both READMEs includes the poster preview, PDF and reciprocal language links. Remote PDF/PPTX/PNG hashes match local copies. All 104 published paths were present in the clean clone, and the 60 core Git objects equal the original baseline. / 双语生成页面与远程海报校验通过，干净副本无遗漏，核心 Git 对象与原版一致。
+- The original `scripts/test/eval_unified.py` was actually attempted in the installed environment. It stopped with `FileNotFoundError` for `CNNTD3_actor.pth`, confirming the missing checkpoint blocker. It did not run the trained benchmark. / 原评估脚本已实际尝试，因权重缺失停止，未运行训练策略评估。
+- The connection has push permission but not repository admin/maintain permission. Repository description/topics settings were therefore left unchanged; project introduction and navigation were updated in the README. / 账号可推送代码但无管理员权限，简介/标签设置未改，首页介绍已更新。
+
+Final documentation-only updates reference the verified implementation above. Current automation status is visible in [Actions](https://github.com/oxoxox-oxox/FURP-2025-Jiabao-Cao-End-to-End-Navigation-for-an-AMR-with-RL/actions). / 最终文档补记对应上述已验证实现，最新自动检查见 Actions。
