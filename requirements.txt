@@ -1,8 +1,2 @@
-torch
-numpy
-pyyaml
-tensorboard
-matplotlib
-tqdm
-irsim
-torch-geometric
+# Verified STPS CPU interfaces. Optional legacy frameworks are not included.
+-r requirements-lock.txt

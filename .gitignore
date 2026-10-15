@@ -40,3 +40,13 @@ CHANGES.md
 run/
 
 tb_logs/
+runs/
+
+# Reproducible local environments, verification and private backups
+.venv-*/
+artifacts/
+*.log
+.env.*
+!.env.example
+*.pem
+backups/

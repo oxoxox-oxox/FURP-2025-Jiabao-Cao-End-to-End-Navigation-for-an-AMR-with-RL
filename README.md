@@ -1,73 +1,68 @@
-# FURP Project Repository
+[English](README.md) · [简体中文](README.zh-CN.md)
 
-> **Faculty Undergraduate Research Practice (FURP)**
-> Undergraduate Research Group · Faculty of Science and Engineering · University of Nottingham Ningbo China
+# STPS: Escaping Navigation Traps Without Losing Precision
 
----
+**A FURP team project on end-to-end mobile robot navigation with reinforcement learning.**
 
-## Project Info
+**[RESEARCH POSTER — PDF](FURP_Showcase.pdf) · [Presentation — PPTX](FURP_Showcase.pptx)**
 
-| Field                        | Your entry                                            |
-| ---------------------------- | ----------------------------------------------------- |
-| Student name(s)              | _Jiabao Cao_                                        |
-| Project title                | End-to-End Navigation for an AMR with RL              |
-| Project tag                  | _End-to-End Navigation_                             |
-| Track                        | Research                                              |
-| Supervising faculty          | Tianxiang Cui                                         |
-| Project lead                 | Jiabao Cao                                            |
-| Team or individual           | Jiabao Cao, Shengqin Jiang, Wenjing Chen Zexian Xiong |
-| Cited paper being replicated | _title + link/DOI_                                  |
+<a href="FURP_Showcase.pdf"><img src="docs/assets/stps-poster.png" alt="STPS research poster" width="600"></a>
 
-**One-line summary:** Using reinforce learning to achieve end to end navigation.
+## Value → contribution → method
 
----
+A robot that always moves toward its goal can remain trapped behind concave obstacles. Exploration helps it escape, but can destroy narrow-door precision. **Stall-Triggered Policy Switching (STPS)** combines complementary trained policies at runtime to address this trade-off.
 
-## Repository structure
+The team's contribution is a stall/oscillation detector, a precision-to-exploration switching controller, and a matched benchmark across four hard scenarios. The repository includes CNN-TD3 models, simulation interfaces, training/evaluation scripts and per-seed result summaries. This demonstrates policy composition, continuous robot control and experimental comparison.
 
-This structure is **mandatory** — please keep it intact.
+**Zexian Xiong (Sean)** is a team member and poster co-author; Git history also records his repository documentation contribution (`6b8eee5`). Individual ownership of the algorithm and experiments is not broken down in the available records, so the research contributions below are credited to the team.
 
+**Final method: STPS v2.** It triggers escape when displacement is below 0.15 m over a 20-position window, or at least 5 direction reversals occur in 12 positions. It returns after a minimum escape duration and displacement above 0.5 m, with a timeout fallback. It uses frozen policies and requires no additional training for the switch. V3 adds goal-distance detection and cooldown; it is an exploratory variant, not the final result.
+
+## Results and evidence
+
+| Method | U-trap | Double-U | Narrow door | Corridor | Hard-scenario mean |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| CNN-TD3 baseline | 0% | 69±4% | 100% | 100% | 67.36% |
+| **STPS v2** | **75±7%** | **100%** | **100%** | **100%** | **93.75%** |
+
+From [archived per-seed results](src/results/final/unified_comparison.json): 3 seeds × 12 perturbed starts per hard scenario; ± is population standard deviation across seed success rates. The mean gain is **26.39 percentage points**; the poster rounds averages to 94% versus 67%. The [final table](src/results/final/final_results_table.md) separately reports standard-environment SR 88% versus 87% from 100 episodes; episode logs for that claim are absent.
+
+These statistics are **recomputed from archived summaries**, not fresh trained-policy runs. The trained checkpoints are missing. Runtime overhead and real-robot readiness claims in the poster were not independently tested here. [Evidence and limitations](docs/REPRODUCIBILITY.md) explain what can be reproduced.
+
+## Quick start
+
+Recompute archived statistics with Python only; no model, GPU or account is needed:
+
+```sh
+git clone https://github.com/oxoxox-oxox/FURP-2025-Jiabao-Cao-End-to-End-Navigation-for-an-AMR-with-RL.git
+cd FURP-2025-Jiabao-Cao-End-to-End-Navigation-for-an-AMR-with-RL
+python tools/summarize_results.py
 ```
-/docs
- ├── 00_weekly.md         ← update EVERY week: progress, challenges, next steps
- └── meeting_notes/       ← key takeaways from all team meetings
-/src                      ← your code / experiments / materials
-FURP_Showcase.pdf         ← your poster / presentation PDF, in the repo root
+
+Expected: `CNNTD3_baseline ... 67.36%`, `NeuPAN ... 0.00%`, `STPS_v2 ... 93.75%`. The NeuPAN value is limited to this archived compact-scene configuration and is not a general conclusion about the method.
+
+For simulator, switching and model interface checks, use Python 3.12:
+
+```sh
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# Linux shell instead: source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pip check
+python -X utf8 tools/verify_project.py
 ```
 
-- **`docs/00_weekly.md`** — your weekly progress log. This is the first thing we check.
-- **`docs/meeting_notes/`** — one file per meeting with key takeaways and action items.
-- **`src/`** — all your code, scripts, notebooks, and experiment materials.
-- **`FURP_Showcase.pdf`** — your final poster, placed in the **repo root** with this exact filename.
+Success ends with `VERIFICATION PASSED`. The real IR-SIM smoke test runs the original switching function in four worlds with synthetic stationary/rotating policies: 19 main-policy calls, 41 escape calls and timeout per scene. A separate check runs the original CNN-TD3 actor/critics with random initial weights. **Neither measures learned navigation performance.** Generated outputs stay in ignored `artifacts/`.
 
----
+Installation needs internet and substantial space for CPU PyTorch; verification itself is offline, takes seconds to tens of seconds and uses no paid service. No credentials are needed. See [complete reproduction instructions](docs/REPRODUCIBILITY.md) for pinned dependencies, commands and missing-resource checks.
 
-## The three rules for your certificate
+## Structure, development and status
 
-To earn your FURP certificate, **all three** must be satisfied:
+`src/code/robot_nav/worlds/` defines scenes; `sim/` turns LiDAR, goal geometry and previous actions into observations. `models/cnntd3.py` encodes **180 LiDAR beams + 5 goal/action values = 185 inputs**, producing two velocity actions. `scripts/test/eval_unified.py` selects precision/escape policies, executes episodes and aggregates success rates. `src/results/final/` preserves archived results; `docs/` retains research history. [Source map](src/code/README.md).
 
-1. **Attend > 50%** of programme activities (weekly meetings, workshops, scheduled sessions — online or in person).
-2. **Submit a poster** — place it as `FURP_Showcase.pdf` in this repo root.
-3. **Present at the Poster Showcase** — in person (strongly preferred), or send a stand-in if you truly cannot attend.
+The repository is a research snapshot. Full trained STPS inference is blocked by 12 missing checkpoint files; `python tools/check_resources.py --strict` lists them and exits 2. Historical training and hardware workflows are not verified. Core code and data remain unchanged. [Validation record](docs/VALIDATION.md).
 
-> Miss any one of the three, and the certificate is not awarded this round.
+Run `python -X utf8 -m unittest discover -s tests -v`; CI additionally exercises the simulator and CPU model. Report issues through [GitHub Issues](https://github.com/oxoxox-oxox/FURP-2025-Jiabao-Cao-End-to-End-Navigation-for-an-AMR-with-RL/issues), including commands and environment without secrets. Request permission before reuse or modification.
 
-**Research Track — minimum for certification:** successful replication of a cited paper with at least **10% innovation** (reproduce the work _and_ add something new).
-
-
----
-
-
-
-## Leave & withdrawal
-
-Any **leave of absence** or **withdrawal** must be notified to us **by email** — a verbal or chat message is not sufficient.
-
-- **Leave:** email _before_ the session where possible, state the date(s) and reason. Note that leave still counts against the >50% attendance rule.
-- **Withdrawal:** email us to formally withdraw so we can free your project slot and update records.
-- **Switching tracks:** email the project lead with the subject _"Project Transfer Request"_ and CC your supervising faculty member.
-
-> No email = no record. Always put leave and withdrawal in writing.
-
----
-
-_Bridging the gap between classroom knowledge and cutting-edge research._
+**All rights reserved; no open-source license is granted.** Public visibility is for platform viewing; other use, redistribution or modification requires permission from the relevant rights holders. Team authors, supervisors and external software retain their attribution and rights. [Rights and credits](RIGHTS.md).

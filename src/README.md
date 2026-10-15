@@ -1,17 +1,10 @@
-# `/src` — your work goes here
+# Research implementation / 研究实现
 
-Put all your code, scripts, notebooks, experiment configs, and project materials in this folder.
+- [Code and architecture / 代码与架构](code/README.md)
+- [Final archived results / 最终存档结果](results/final/README.md)
+- [English overview](../README.md) · [中文概览](../README.zh-CN.md)
+- [Reproduction / 复现](../docs/REPRODUCIBILITY.md)
 
-**Research Track reminder:** your project should reproduce a cited paper and add **at least 10% innovation** (something new on top of the replication). Organise this folder however suits your project, but keep it tidy enough that a reviewer can follow what you did.
+Core algorithms, scenarios and original results are preserved. Verification helpers live in the root `tools/` directory and do not replace the research implementation.
 
-Suggested (not mandatory) layout:
-
-```
-/src
- ├── README.md          ← how to run your code / what's here
- ├── data/              ← datasets (or links if too large to commit)
- ├── experiments/       ← scripts, notebooks, configs
- └── results/           ← outputs, figures, logs
-```
-
-> Don't commit large datasets or secrets/credentials. Link to data sources instead.
+核心算法、场景及原始结果保留原样，根目录 `tools/` 为验证辅助工具，不替换研究实现。
