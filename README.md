@@ -14,7 +14,6 @@ A robot that always moves toward its goal can remain trapped behind concave obst
 
 The team's contribution is a stall/oscillation detector, a precision-to-exploration switching controller, and a matched benchmark across four hard scenarios. The repository includes CNN-TD3 models, simulation interfaces, training/evaluation scripts and per-seed result summaries. This demonstrates policy composition, continuous robot control and experimental comparison.
 
-**Zexian Xiong (Sean)** is a team member and poster co-author; Git history also records his repository documentation contribution (`6b8eee5`). Individual ownership of the algorithm and experiments is not broken down in the available records, so the research contributions below are credited to the team.
 
 **Final method: STPS v2.** It triggers escape when displacement is below 0.15 m over a 20-position window, or at least 5 direction reversals occur in 12 positions. It returns after a minimum escape duration and displacement above 0.5 m, with a timeout fallback. It uses frozen policies and requires no additional training for the switch. V3 adds goal-distance detection and cooldown; it is an exploratory variant, not the final result.
 
